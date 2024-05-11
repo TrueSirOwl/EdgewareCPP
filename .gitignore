@@ -401,3 +401,8 @@ FodyWeavers.xsd
 #-----------------------
 #ignore Frameworks Folder
 Frameworks/
+*.vcxproj
+*.ico
+*.rc
+*.sln
+*.filters
