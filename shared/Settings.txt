@@ -1,0 +1,14 @@
+ButtonX=400
+ButtonY=40
+ButtonText=test
+PopupLifespan=0
+ImageFolderPath=B:\EdgewarePlusPlus-main\EdgeWare\resource\img
+TimeBetweenPopups=4064
+MinXButtonHeight=10
+MaxXButtonHeight=400
+MinYButtonHeight=10
+MaxYButtonHeight=40
+Multiplicator=2
+PopupFadeOut=1
+PopupFadeOutSteps=5000
+PopupFadeOutTime=5000

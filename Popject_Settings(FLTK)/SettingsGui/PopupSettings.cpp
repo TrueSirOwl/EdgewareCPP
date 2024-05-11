@@ -1,0 +1,251 @@
+#pragma once
+
+#include "PopupSettings.h"
+#include <iostream>
+#include <cmath>
+
+PopupSettings::PopupSettings(int x, int y, int w, int h) : Fl_Double_Window(x, y, w, h),X(x),Y(y),W(w),H(h) {
+	box(FL_BORDER_BOX);
+
+	this->SettingsFileContent = ReadSettings();
+
+	this->ButtonXinput = new Fl_Value_Slider(w-50, h- this->SettingsFileContent->MaxYButtonHeight -120, 40, 100, "ButtonX");
+	this->ButtonXinput->value(this->SettingsFileContent->ButtonX);
+	this->ButtonXinput->maximum(this->SettingsFileContent->MinXButtonHeight);
+	this->ButtonXinput->minimum(this->SettingsFileContent->MaxXButtonHeight);
+	this->ButtonXinput->step(1);
+	this->ButtonXinput->tooltip("Sets the X extent of the Button in the bottom right Corner");
+	this->ButtonXinput->callback(ResizeButtonTextField, this);
+
+	this->ButtonYinput = new Fl_Value_Slider(w-100, h- this->SettingsFileContent->MaxYButtonHeight -120, 40, 100, "ButtonY");
+	this->ButtonYinput->value(this->SettingsFileContent->ButtonY);
+	this->ButtonYinput->maximum(this->SettingsFileContent->MinYButtonHeight);
+	this->ButtonYinput->minimum(this->SettingsFileContent->MaxYButtonHeight);
+	this->ButtonYinput->step(1);
+	this->ButtonYinput->tooltip("Sets the Y extent of the Button in the bottom right Corner");
+	this->ButtonYinput->callback(ResizeButtonTextField, this);
+	
+	this->ButtonTextInput = new Fl_Input(w - this->SettingsFileContent->ButtonX, h- this->SettingsFileContent->ButtonY, this->SettingsFileContent->ButtonX, this->SettingsFileContent->ButtonY);
+	this->ButtonTextInput->value(this->SettingsFileContent->ButtonText.c_str());
+	this->ButtonTextInput->tooltip("Sets the Text on the Button in the bottom right Corner");
+
+
+	this->PopupFadeOut = new Fl_Check_Button(150, 10, 20, 20, "Fade Out");
+	this->PopupFadeOut->align(FL_ALIGN_LEFT);
+	this->PopupFadeOut->value(this->SettingsFileContent->PopupFadeOut);
+	this->PopupFadeOut->tooltip("Enables Popup Fadeout after Lifetime runs out");
+	this->PopupFadeOut->callback(ActivateFadeout, this);
+
+	this->PopupFadeOutStepsSlider = new Fl_Hor_Slider(150, 30, 220, 20, "Steps");
+	this->PopupFadeOutStepsSlider->align(FL_ALIGN_LEFT);
+	this->PopupFadeOutStepsSlider->value(this->SettingsFileContent->PopupFadeOutSteps);
+	this->PopupFadeOutStepsSlider->tooltip("Sets the amount of Steps the Fade out takes to dissapear (one step takes one time");
+	this->PopupFadeOutStepsSlider->step(1);
+	this->PopupFadeOutStepsSlider->maximum(5000);
+	this->PopupFadeOutStepsSlider->minimum(3);
+	this->PopupFadeOutStepsSlider->callback(SetPopupFadeOutStepsInput, this);
+
+	this->PopupFadeOutStepsInput = new Fl_Value_Input(370,30,50,20);
+	this->PopupFadeOutStepsInput->value(this->SettingsFileContent->PopupFadeOutSteps);
+	this->PopupFadeOutStepsInput->callback(SetPopupFadeOutStepsSlider, this);
+
+	this->PopupFadeOutTimeSlider = new Fl_Hor_Slider(150, 50, 220, 20, "Time");
+	this->PopupFadeOutTimeSlider->align(FL_ALIGN_LEFT);
+	this->PopupFadeOutTimeSlider->value(this->SettingsFileContent->PopupFadeOutTime);
+	this->PopupFadeOutTimeSlider->tooltip("Sets the time the Fade out takes");
+	this->PopupFadeOutTimeSlider->step(1);
+	this->PopupFadeOutTimeSlider->maximum(10000);
+	this->PopupFadeOutTimeSlider->minimum(3);
+	this->PopupFadeOutTimeSlider->callback(SetPopupFadeOutTimeInput,this);
+
+	this->PopupFadeOutTimeInput = new Fl_Value_Input(370, 50, 50, 20);
+	this->PopupFadeOutTimeInput->value(this->SettingsFileContent->PopupFadeOutTime);
+	this->PopupFadeOutTimeInput->callback(SetPopupFadeOutTimeSlider,this);
+
+	if (this->PopupFadeOut->value() == 0) {
+		this->PopupFadeOutTimeSlider->deactivate();
+		this->PopupFadeOutStepsSlider->deactivate();
+		this->PopupFadeOutStepsInput->deactivate();
+		this->PopupFadeOutTimeInput->deactivate();
+	}
+
+	this->PopupLifespanInput = new Fl_Value_Input(370, 70, 50, 20);
+	this->PopupLifespanInput->value(this->SettingsFileContent->PopupLifespan);
+	this->PopupLifespanInput->tooltip("Sets how long each Popup exists untill it begins to dissapear");
+	this->PopupLifespanInput->callback(SetSliderLifespan, this);
+
+	this->PopupLifespanSlider = new Fl_Hor_Slider(170, 70, 200, 20);
+	this->PopupLifespanSlider->minimum(0);
+	this->PopupLifespanSlider->maximum(10000);
+	this->PopupLifespanSlider->step(1);
+	this->PopupLifespanSlider->value(this->SettingsFileContent->PopupLifespan);
+	this->PopupLifespanSlider->callback(SetInputLifespan,this);
+
+	this->PopupLifespan = new Fl_Check_Button(150, 70, 20, 20, "Popup Lifespan");
+	this->PopupLifespan->value(1);
+	if (this->SettingsFileContent->PopupLifespan < 0) {
+		this->PopupLifespan->value(0);
+		this->PopupLifespanInput->deactivate();
+		this->PopupLifespanSlider->deactivate();
+	}
+	this->PopupLifespan->align(FL_ALIGN_LEFT);
+	this->PopupLifespan->callback(SetPopupLifespan, this);
+	this->PopupLifespan->tooltip("Sets wether Popups have a lifespan, after which they dissapear.\n(Disabling this may cause the program to crash due to running out of memory!)");
+
+	this->ImageFolderPath = new Fl_Input(150, 90, 700, 20, "Image Folder Path");
+	this->ImageFolderPath->value(this->SettingsFileContent->ImageFolderPath.c_str());
+	this->ImageFolderPath->tooltip("this is the path the program will get all its images from");
+	
+	this->TimeBetweenPopupsInput = new Fl_Value_Input(370, 110, 50, 20);
+	this->TimeBetweenPopupsInput->value(this->SettingsFileContent->TimeBetweenPopups);
+	this->TimeBetweenPopupsInput->tooltip("Sets the time between Popups");
+	this->TimeBetweenPopupsInput->callback(SetTimeBetweenPopupsSlider, this);
+
+	this->TimeBetweenPopupsSlider = new Fl_Hor_Slider(170, 110, 200, 20);
+	this->TimeBetweenPopupsSlider->minimum(0);
+	this->TimeBetweenPopupsSlider->maximum(10000);
+	this->TimeBetweenPopupsSlider->step(1);
+	this->TimeBetweenPopupsSlider->value(this->SettingsFileContent->TimeBetweenPopups);
+	this->TimeBetweenPopupsSlider->tooltip("Sets the time between Popups");
+	this->TimeBetweenPopupsSlider->callback(SetTimeBetweenPopupsInput, this);
+
+	this->TimeBetweenPopups = new Fl_Check_Button(150, 110, 20, 20, "TimeBetweenPopups");
+	this->TimeBetweenPopups->align(FL_ALIGN_LEFT);
+	this->TimeBetweenPopups->tooltip("Sets the time between Popups");
+	this->TimeBetweenPopups->callback(SetTimeBeteenPopups, this);
+	this->TimeBetweenPopups->value(1);
+	if (this->SettingsFileContent->TimeBetweenPopups < 0) {
+		this->TimeBetweenPopups->value(0);
+		this->TimeBetweenPopupsInput->deactivate();
+		this->TimeBetweenPopupsSlider->deactivate();
+	}
+
+	this->MultiplicatiorInput = new Fl_Value_Input(150, 130, 50, 20, "Multiplication");
+	this->MultiplicatiorInput->value(this->SettingsFileContent->Multiplicator);
+	this->MultiplicatiorInput->tooltip("Determines how many Popus will be created when closing a Popup");
+
+	hide();
+}
+
+void PopupSettings::ResizeButtonTextField(Fl_Widget* w, void* data) {
+	PopupSettings* Gui = static_cast<PopupSettings*>(data);
+	Gui->ButtonTextInput->resize(Gui->W - Gui->ButtonXinput->value(), Gui->H - Gui->ButtonYinput->value(), Gui->ButtonXinput->value(), Gui->ButtonYinput->value());
+	std::cout << (int)Gui->TimeBetweenPopups->value();
+	Gui->redraw();
+}
+
+void PopupSettings::SetTimeBeteenPopups(Fl_Widget* w, void* data) {
+	PopupSettings* Gui = static_cast<PopupSettings*>(data);
+	if ((int)Gui->TimeBetweenPopups->value() == 1) {
+		Gui->TimeBetweenPopupsInput->activate();
+		Gui->TimeBetweenPopupsSlider->activate();
+		Gui->TimeBetweenPopupsInput->value(Gui->TimeBetweenPopupsSlider->value());
+	}
+	else {
+		Gui->TimeBetweenPopupsInput->value(-1);
+		Gui->TimeBetweenPopupsInput->deactivate();
+		Gui->TimeBetweenPopupsSlider->deactivate();
+	}
+}
+
+void PopupSettings::SetPopupLifespan(Fl_Widget* w, void* data) {
+	PopupSettings* Gui = static_cast<PopupSettings*>(data);
+	if ((int)Gui->PopupLifespan->value() == 1) {
+		Gui->PopupLifespanInput->activate();
+		Gui->PopupLifespanSlider->activate();
+		Gui->PopupLifespanInput->value(Gui->PopupLifespanSlider->value());
+	}
+	else {
+		Gui->PopupLifespanInput->value(-1);
+		Gui->PopupLifespanInput->deactivate();
+		Gui->PopupLifespanSlider->deactivate();
+	}
+}
+
+void PopupSettings::SetTimeBetweenPopupsSlider(Fl_Widget* w, void* data) {
+	PopupSettings* Gui = static_cast<PopupSettings*>(data);
+	Gui->TimeBetweenPopupsSlider->value(Gui->TimeBetweenPopupsInput->value());
+}
+
+void PopupSettings::SetTimeBetweenPopupsInput(Fl_Widget* w, void* data) {
+	PopupSettings* Gui = static_cast<PopupSettings*>(data);
+	Gui->TimeBetweenPopupsInput->value(Gui->TimeBetweenPopupsSlider->value());
+}
+
+void PopupSettings::SetInputLifespan(Fl_Widget* w, void* data) {
+	PopupSettings* Gui = static_cast<PopupSettings*>(data);
+	Gui->PopupLifespanInput->value(Gui->PopupLifespanSlider->value());
+}
+
+void PopupSettings::SetSliderLifespan(Fl_Widget* w, void* data) {
+	PopupSettings* Gui = static_cast<PopupSettings*>(data);
+	Gui->PopupLifespanSlider->value(Gui->PopupLifespanInput->value());
+}
+
+void PopupSettings::ActivateFadeout(Fl_Widget* w, void* data) {
+	PopupSettings* Gui = static_cast<PopupSettings*>(data);
+	if (Gui->PopupFadeOut->value() == 0) {
+		Gui->PopupFadeOutTimeSlider->deactivate();
+		Gui->PopupFadeOutStepsSlider->deactivate();
+		Gui->PopupFadeOutStepsInput->deactivate();
+		Gui->PopupFadeOutTimeInput->deactivate();
+	}
+	else {
+		Gui->PopupFadeOutTimeSlider->activate();
+		Gui->PopupFadeOutStepsSlider->activate();
+		Gui->PopupFadeOutStepsInput->activate();
+		Gui->PopupFadeOutTimeInput->activate();
+	}
+}
+
+void PopupSettings::SetPopupFadeOutStepsInput(Fl_Widget* w, void* data) {
+	PopupSettings* Gui = static_cast<PopupSettings*>(data);
+	Gui->PopupFadeOutStepsInput->value(Gui->PopupFadeOutStepsSlider->value());
+	if (Gui->PopupFadeOutStepsInput->value() > Gui->PopupFadeOutTimeInput->value()) {
+		Gui->PopupFadeOutTimeInput->value(Gui->PopupFadeOutStepsSlider->value());
+		Gui->PopupFadeOutTimeSlider->value(Gui->PopupFadeOutStepsSlider->value());
+	}
+}
+
+void PopupSettings::SetPopupFadeOutTimeInput(Fl_Widget* w, void* data) {
+	PopupSettings* Gui = static_cast<PopupSettings*>(data);
+	Gui->PopupFadeOutTimeInput->value(Gui->PopupFadeOutTimeSlider->value());
+	if (Gui->PopupFadeOutStepsSlider->value() > Gui->PopupFadeOutTimeInput->value()) {
+		Gui->PopupFadeOutStepsInput->value(Gui->PopupFadeOutTimeInput->value());
+		Gui->PopupFadeOutStepsSlider->value(Gui->PopupFadeOutTimeInput->value());
+	}
+}
+
+void PopupSettings::SetPopupFadeOutStepsSlider(Fl_Widget* w, void* data) {
+	PopupSettings* Gui = static_cast<PopupSettings*>(data);
+	Gui->PopupFadeOutStepsSlider->value(Gui->PopupFadeOutStepsInput->value());
+	if (Gui->PopupFadeOutStepsSlider->value() > Gui->PopupFadeOutTimeInput->value()) {
+		Gui->PopupFadeOutTimeInput->value(Gui->PopupFadeOutStepsInput->value());
+		Gui->PopupFadeOutTimeSlider->value(Gui->PopupFadeOutStepsInput->value());
+	}
+	if (Gui->PopupFadeOutStepsInput->value() < 3) {
+		Gui->PopupFadeOutStepsSlider->value(3);
+		Gui->PopupFadeOutStepsInput->value(3);
+	}
+	if (Gui->PopupFadeOutTimeInput->value() < 3) {
+		Gui->PopupFadeOutTimeSlider->value(3);
+		Gui->PopupFadeOutTimeInput->value(3);
+	}
+}
+
+void PopupSettings::SetPopupFadeOutTimeSlider(Fl_Widget* w, void* data) {
+	PopupSettings* Gui = static_cast<PopupSettings*>(data);
+	Gui->PopupFadeOutTimeSlider->value(Gui->PopupFadeOutTimeInput->value());
+	if (Gui->PopupFadeOutStepsSlider->value() > Gui->PopupFadeOutTimeInput->value()) {
+		Gui->PopupFadeOutStepsInput->value(Gui->PopupFadeOutTimeInput->value());
+		Gui->PopupFadeOutStepsSlider->value(Gui->PopupFadeOutTimeInput->value());
+	}
+	if (Gui->PopupFadeOutTimeInput->value() < 3) {
+		Gui->PopupFadeOutTimeSlider->value(3);
+		Gui->PopupFadeOutTimeInput->value(3);
+	}
+	if (Gui->PopupFadeOutStepsInput->value() < 3) {
+		Gui->PopupFadeOutStepsSlider->value(3);
+		Gui->PopupFadeOutStepsInput->value(3);
+	}
+}
