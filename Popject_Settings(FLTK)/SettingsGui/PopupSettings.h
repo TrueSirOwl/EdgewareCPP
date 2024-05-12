@@ -20,25 +20,37 @@ private:
 public:
 	int X, Y , W, H;
 
-
+	//------------------------------------------------
+	int Buttonx, Buttony, Buttonw, Buttonh;
 	Fl_Value_Slider* ButtonXinput;
 	Fl_Value_Slider* ButtonYinput;
-
+	Fl_Input* ButtonTextInput;
+	//------------------------------------------------
+	int Fadex, Fadey, Fadew, Fadeh;
 	Fl_Check_Button* PopupFadeOut;
 	Fl_Hor_Slider* PopupFadeOutStepsSlider;
 	Fl_Hor_Slider* PopupFadeOutTimeSlider;
 	Fl_Value_Input* PopupFadeOutStepsInput;
 	Fl_Value_Input* PopupFadeOutTimeInput;
-
-
+	//------------------------------------------------
+	int Opacityx, Opacityy, Opacityw, Opacityh;
+	Fl_Hor_Slider* PopupOpacitySlider;
+	Fl_Value_Input* PopupOpacityInput;
+	//------------------------------------------------
+	int Lifespanx, Lifespany, Lifespanw, Lifespanh;
 	Fl_Check_Button* PopupLifespan;
 	Fl_Value_Input* PopupLifespanInput;
 	Fl_Hor_Slider* PopupLifespanSlider;
+	//------------------------------------------------
+	int TimeBetweenx, TimeBetweeny, TimeBetweenw, TimeBetweenh;
 	Fl_Check_Button* TimeBetweenPopups;
 	Fl_Hor_Slider* TimeBetweenPopupsSlider;
 	Fl_Value_Input* TimeBetweenPopupsInput;
+	//------------------------------------------------
+	int Multiplictorx, Multiplictory, Multiplictorw, Multiplictorh;
 	Fl_Value_Input* MultiplicatiorInput;
-	Fl_Input* ButtonTextInput;
+	//------------------------------------------------
+	int FolderPathx, FolderPathy, FolderPathw, FolderPathh;
 	Fl_Input* ImageFolderPath;
 
 

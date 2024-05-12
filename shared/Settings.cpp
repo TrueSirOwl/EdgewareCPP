@@ -35,7 +35,8 @@ Setting OwOWhatSettingDis(std::string line) {
 		{"Multiplicator", Setting::Multiplicator},
 		{"PopupFadeOut", Setting::PopupFadeOut},
 		{"PopupFadeOutSteps", Setting::PopupFadeOutSteps},
-		{"PopupFadeOutTime", Setting::PopupFadeOutTime}
+		{"PopupFadeOutTime", Setting::PopupFadeOutTime},
+		{"PopupOpacity", Setting::PopupOpacity}
 	};
 	std::map<std::string,Setting>::const_iterator it = lineToEnumMap.find(LineSetting);
 	if (it != lineToEnumMap.end()) {
@@ -104,6 +105,10 @@ void assign(std::string line, Setting sett, Settings* SettingsStruct) {
 	
 	case Setting::PopupFadeOutTime:
 		SettingsStruct->PopupFadeOutTime = std::stoi(line.substr(line.find('=') + 1, line.length()));
+		break;
+
+	case Setting::PopupOpacity:
+		SettingsStruct->PopupOpacity = std::stod(line.substr(line.find('=') + 1, line.length()));
 		break;
 
 	default:

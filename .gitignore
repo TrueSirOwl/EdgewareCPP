@@ -406,3 +406,6 @@ Frameworks/
 *.rc
 *.sln
 *.filters
+Recource.h
+targetver.h
+framework.h

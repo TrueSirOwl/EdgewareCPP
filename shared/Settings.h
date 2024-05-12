@@ -20,7 +20,8 @@ enum Setting
 	BurstAmt,
 	PopupFadeOut,
 	PopupFadeOutSteps,
-	PopupFadeOutTime
+	PopupFadeOutTime,
+	PopupOpacity
 };
 
 
@@ -40,6 +41,7 @@ struct Settings
 	bool PopupFadeOut;
 	double PopupFadeOutSteps;
 	int PopupFadeOutTime;
+	double PopupOpacity;
 };
 
 Settings*	ReadSettings();

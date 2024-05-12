@@ -17,6 +17,7 @@ Popup::Popup(ImageStorage& src, const Settings popsett): sett(popsett), ImageLib
 	getImage();
 	scaleImage();
 	placer();
+	SDL_SetWindowOpacity(this->window, this->sett.PopupOpacity);
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
 	if (this->Content == GIF) {
 		Gif = IMG_LoadAnimation(this->ContentPath.c_str());
@@ -34,6 +35,7 @@ void Popup::getDisplays() {
 
 void Popup::getImage() {
 	this->ContentPath = ImageLib.getRandomImage();
+	std::cout << this->ContentPath << std::endl;
 	/*
 	while (this->ContentPath.substr(this->ContentPath.find_last_of('.') + 1) != "gif") {
 		this->ContentPath = ImageLib.getRandomImage();
@@ -182,8 +184,7 @@ void Popup::renderImage() {
 }
 
 void Popup::GifFadeout() {
-	double fader = 1;
-	double dimin = 1 / this->sett.PopupFadeOutSteps;
+	double dimin = this->sett.PopupOpacity / this->sett.PopupFadeOutSteps;
 	double step = (this->sett.PopupFadeOutTime / this->sett.PopupFadeOutSteps);
 
 	struct timeb middle1;
@@ -192,20 +193,19 @@ void Popup::GifFadeout() {
 	ftime(&middle);
 	ftime(&middle1);
 
-	while (fader > 0) {
+	while (this->sett.PopupOpacity > 0) {
 		if ((middle.time * 1000 + middle.millitm) - (middle1.time * 1000 + middle1.millitm) >= step) {
 			ftime(&middle1);
-			SDL_SetWindowOpacity(this->window, fader);
+			SDL_SetWindowOpacity(this->window, this->sett.PopupOpacity);
 			renderGif();
-			fader -= dimin;
+			this->sett.PopupOpacity -= dimin;
 		}
 		ftime(&middle);
 	}
 }
 
 void Popup::FadeOut() {
-	double fader = 1;
-	double dimin = 1 / this->sett.PopupFadeOutSteps;
+	double dimin = this->sett.PopupOpacity / this->sett.PopupFadeOutSteps;
 	double step = (this->sett.PopupFadeOutTime / this->sett.PopupFadeOutSteps);
 
 	struct timeb middle1;
@@ -214,11 +214,11 @@ void Popup::FadeOut() {
 	ftime(&middle);
 	ftime(&middle1);
 
-	while (fader > 0) {
+	while (this->sett.PopupOpacity > 0) {
 		if ((middle.time * 1000 + middle.millitm) - (middle1.time * 1000 + middle1.millitm) >= step) {
 			ftime(&middle1);
-			SDL_SetWindowOpacity(this->window, fader);
-			fader -= dimin;
+			SDL_SetWindowOpacity(this->window, this->sett.PopupOpacity);
+			this->sett.PopupOpacity -= dimin;
 		}
 		ftime(&middle);
 	}

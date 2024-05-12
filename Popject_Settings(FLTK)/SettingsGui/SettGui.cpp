@@ -178,6 +178,9 @@ int SettGui::getPopupFadeOutTime() {
 	return(this->PopSett->PopupFadeOutTimeInput->value());
 }
 
+double SettGui::getPopupOpacity() {
+	return(this->PopSett->PopupOpacitySlider->value());
+}
 
 void saveAndClose(Fl_Widget* win, void* Src) {
 	SettGui* Gui = static_cast<SettGui*>(Src);
@@ -199,6 +202,7 @@ void saveAndClose(Fl_Widget* win, void* Src) {
 	Settings << "PopupFadeOut=" << Gui->getPopupFadeOut() << std::endl;
 	Settings << "PopupFadeOutSteps=" << Gui->getPopupFadeOutSteps() << std::endl;
 	Settings << "PopupFadeOutTime=" << Gui->getPopupFadeOutTime() << std::endl;
+	Settings << "PopupOpacity=" << Gui->getPopupOpacity() << std::endl;
 	//Settings << "" << Gui << std::endl;
 	if (Fl::event() == FL_CLOSE) {
 		win->hide();

@@ -84,6 +84,7 @@ public:
 	int getPopupFadeOut();
 	int getPopupFadeOutSteps();
 	int getPopupFadeOutTime();
+	double getPopupOpacity();
 };
 
 void saveAndClose(Fl_Widget* Gui, void* Src);
