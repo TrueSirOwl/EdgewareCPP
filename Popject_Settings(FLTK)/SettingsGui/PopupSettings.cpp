@@ -86,6 +86,15 @@ PopupSettings::PopupSettings(int x, int y, int w, int h) : Fl_Double_Window(x, y
 	this->PopupOpacitySlider->minimum(0);
 	this->PopupOpacitySlider->step(0.01);
 	this->PopupOpacitySlider->tooltip("Sets the Opactity of the Popups");
+	this->PopupOpacitySlider->callback(SetPopupOpacityInput,this);
+	this->PopupOpacityInput = new Fl_Value_Input(Opacityx + 200, Opacityy, 50, 20);
+	this->PopupOpacityInput->value(this->SettingsFileContent->PopupOpacity);
+	this->PopupOpacityInput->callback(SetPopupOpacitySlider, this);
+	
+	this->Overlay = new Fl_Check_Button(Opacityx, Opacityy + 20, 20, 20,"Overlay");
+	this->Overlay->value(this->SettingsFileContent->Overlay);
+	this->Overlay->align(FL_ALIGN_LEFT);
+	this->Overlay->tooltip("Makes Popups Overlays");
 
 	//this->PopupOpacityInput = new Fl_Value_Input(Opacityx);
 
@@ -160,12 +169,12 @@ PopupSettings::PopupSettings(int x, int y, int w, int h) : Fl_Double_Window(x, y
 	}
 	//------------------------------------------------
 
-	Multiplictorx = 150;
-	Multiplictory = 90;
-	Multiplictorw = 0;
-	Multiplictorh = 0;
+	Multiplicatorx = 150;
+	Multiplicatory = 90;
+	Multiplicatorw = 0;
+	Multiplicatorh = 0;
 
-	this->MultiplicatiorInput = new Fl_Value_Input(Multiplictorx, Multiplictory, 50, 20, "Multiplication");
+	this->MultiplicatiorInput = new Fl_Value_Input(Multiplicatorx, Multiplicatory, 50, 20, "Multiplication");
 	this->MultiplicatiorInput->value(this->SettingsFileContent->Multiplicator);
 	this->MultiplicatiorInput->tooltip("Determines how many Popus will be created when closing a Popup");
 
@@ -301,4 +310,15 @@ void PopupSettings::SetPopupFadeOutTimeSlider(Fl_Widget* w, void* data) {
 		Gui->PopupFadeOutStepsInput->value(3);
 	}
 	*/
+}
+
+void PopupSettings::SetPopupOpacitySlider(Fl_Widget* w, void* data) {
+	PopupSettings* Gui = static_cast<PopupSettings*>(data);
+	Gui->PopupOpacitySlider->value(Gui->PopupOpacityInput->value());
+}
+
+void PopupSettings::SetPopupOpacityInput(Fl_Widget* w, void* data) {
+	PopupSettings* Gui = static_cast<PopupSettings*>(data);
+	Gui->PopupOpacityInput->value(Gui->PopupOpacitySlider->value());
+
 }

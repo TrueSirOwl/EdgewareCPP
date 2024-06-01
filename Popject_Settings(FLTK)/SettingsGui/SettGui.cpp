@@ -182,6 +182,10 @@ double SettGui::getPopupOpacity() {
 	return(this->PopSett->PopupOpacitySlider->value());
 }
 
+int SettGui::getPopupOverlay() {
+	return(this->PopSett->Overlay->value());
+}
+
 void saveAndClose(Fl_Widget* win, void* Src) {
 	SettGui* Gui = static_cast<SettGui*>(Src);
 	std::ofstream Settings("../../shared/Settings.txt");
@@ -203,6 +207,7 @@ void saveAndClose(Fl_Widget* win, void* Src) {
 	Settings << "PopupFadeOutSteps=" << Gui->getPopupFadeOutSteps() << std::endl;
 	Settings << "PopupFadeOutTime=" << Gui->getPopupFadeOutTime() << std::endl;
 	Settings << "PopupOpacity=" << Gui->getPopupOpacity() << std::endl;
+	Settings << "PopupOverlay=" << Gui->getPopupOverlay() << std::endl;
 	//Settings << "" << Gui << std::endl;
 	if (Fl::event() == FL_CLOSE) {
 		win->hide();

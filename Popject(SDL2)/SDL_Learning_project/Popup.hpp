@@ -59,6 +59,8 @@ private:
 	void FadeOut();
 	void GifFadeout();
 
+	void SetWindowClickThrough();
+
 public:
 	long long lifetime;
 	bool death;

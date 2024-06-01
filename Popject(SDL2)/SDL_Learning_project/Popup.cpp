@@ -1,15 +1,20 @@
 #include "Popup.hpp"
 #include <random>
 #include <algorithm>
-#include <Windows.h>
 #include <chrono>
+#include <Debug.h>
 
 Popup::Popup(ImageStorage& src, const Settings popsett): sett(popsett), ImageLib(src), lifetime(sett.PopupLifespan), death(false), born(false){
 	getDisplays();
-	this->window = SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_BORDERLESS | SDL_WINDOW_HIDDEN | SDL_WINDOW_ALLOW_HIGHDPI);
+	this->window = SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_BORDERLESS | SDL_WINDOW_HIDDEN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_SKIP_TASKBAR);
 	if (this->window == NULL) {
 		delete (this);
 	}
+
+	if (this->sett.Overlay == 1) {
+		SetWindowClickThrough();
+	}
+	
 	this->PopupRenderer = SDL_CreateRenderer(this->window, 2 ,SDL_RENDERER_ACCELERATED);
 	if (this->PopupRenderer == NULL) {
 		delete(this);
@@ -43,20 +48,28 @@ void Popup::getImage() {
 	}
 	*/
 	this->imageTexture = IMG_LoadTexture(this->PopupRenderer, this->ContentPath.c_str());
-	std::cout << "image error message: " << SDL_GetError() << std::endl;
-	SDL_ClearError();
-	SDL_QueryTexture(this->imageTexture, NULL, NULL, &this->imageW, &this->imageH);
+	while (this->imageTexture == NULL) {
+		LOG(WARNING, "Loading " + this->ContentPath + " Failed: " + (std::string)SDL_GetError() + ", trying diferent image");
+		SDL_ClearError();
+		this->imageTexture = IMG_LoadTexture(this->PopupRenderer, this->ContentPath.c_str());
+	}
 	if (this->imageTexture == NULL) {
+		LOG(HERROR, this->ContentPath + " Could not be Loaded, Aborting Popup");
 		delete(this);
+	}
+	if (SDL_QueryTexture(this->imageTexture, NULL, NULL, &this->imageW, &this->imageH) != 0) {
+		LOG(HERROR, "could not get dimensions of " + this->ContentPath);
 	}
 	this->Content = getContentType();
 }
 
 ContentType Popup::getContentType() {
 	if (this->ContentPath.substr(this->ContentPath.find_last_of('.') + 1) == "gif") {
+		LOG(INFO, this->ContentPath + " treated as IMAGE");
 		return(GIF);
 	}
 	else {
+		LOG(INFO, this->ContentPath + " treted as GIF");
 		return (IMAGE);
 	}
 }
@@ -234,3 +247,51 @@ Popup::~Popup() {
 		SDL_DestroyWindow(this->window);
 	}
 }
+
+#if defined(_WIN32)
+#include <windows.h>
+#include <SDL_syswm.h>
+#endif
+
+	void Popup::SetWindowClickThrough() {
+		SDL_SysWMinfo wmInfo;
+		SDL_VERSION(&wmInfo.version);
+		if (SDL_GetWindowWMInfo(window, &wmInfo)) {
+
+#if defined(_WIN32)
+
+			HWND hwnd = wmInfo.info.win.window;
+			SetWindowLong(hwnd, GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_TRANSPARENT);
+#endif
+
+#if defined(__APPLE__)
+			NSWindow* nswindow = wmInfo.info.cocoa.window;
+			[nswindow setIgnoresMouseEvents : YES] ;
+			[nswindow setCanBecomeKeyWindow : NO] ;
+			[nswindow setCanBecomeMainWindow : NO] ;
+#endif
+
+#if defined(__linux__)
+			Display* display = wmInfo.info.x11.display;
+			Window xwindow = wmInfo.info.x11.window;
+
+			// Set the window to be transparent
+			Atom opacity = XInternAtom(display, "_NET_WM_WINDOW_OPACITY", False);
+			unsigned long value = (unsigned long)(0.0 * 0xFFFFFFFF); // Fully transparent
+			XChangeProperty(display, xwindow, opacity, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)&value, 1);
+
+			// Set the window to allow mouse clicks to pass through
+			XSetWindowAttributes attrs;
+			attrs.override_redirect = True;
+			XChangeWindowAttributes(display, xwindow, CWOverrideRedirect, &attrs);
+
+			XRectangle rect;
+			XserverRegion region = XFixesCreateRegion(display, &rect, 1);
+			XFixesSetWindowShapeRegion(display, xwindow, ShapeInput, 0, 0, region);
+			XFixesDestroyRegion(display, region);
+#endif
+		}
+		else {
+			std::cerr << "SDL_GetWindowWMInfo Error: " << SDL_GetError() << std::endl;
+		}
+	}

@@ -10,6 +10,14 @@
 #include <future>
 #include <exception>
 #include <Settings.h>
+#include <fstream>
+#include <chrono>
+#include <ctime>
+#include <cerrno>
+#include <cstring>
+#include <Debug.h>
+
+std::ofstream Log;
 
 void playGif(IMG_Animation* Gif, SDL_Renderer* renderer, SDL_Texture* texture, SDL_Surface* screen, SDL_Window* window);
 
@@ -20,15 +28,31 @@ void cleanup(std::vector<Popup*> Popups) {
 	}
 }
 
+void CreateLogFile() {
+	auto runt = std::chrono::system_clock::now();
+	std::time_t runTime = std::chrono::system_clock::to_time_t(runt);
+	std::string time = "L:/CPP_learning_stuff/Logs/Log_";
+	time.append(std::ctime(&runTime));
+	time.erase(time.find("\n"));
+	time.append(".hornylog");
+	std::replace(time.begin(), time.end(), ' ', '_');
+	std::replace(time.begin() + 2, time.end(), ':', '_');
+	Log = std::ofstream(time.c_str());
+}
+
 
 int main(int argc, char* argv[]) {
 	SDL_Init(SDL_INIT_VIDEO);
-	Settings* Sett = ReadSettings();
 
+	SDL_SetHint(SDL_HINT_HIDAPI_IGNORE_DEVICES, "0x1532/0x0084");
+
+	Settings* Sett = ReadSettings();
+	CreateLogFile();
 
 	//B:\EdgewarePlusPlus-main\EdgeWare\resource\img
 	//L:/Steam/userdata/86245047/760/remote/244850/screenshots
 	ImageStorage IMGLib = ImageStorage(Sett->ImageFolderPath);
+	LOG(INFO, "Getting Images from : "+ Sett->ImageFolderPath);
 	const Uint8* state = SDL_GetKeyboardState(NULL);
 	struct timeb _start;
 	ftime(&_start);
@@ -41,7 +65,6 @@ int main(int argc, char* argv[]) {
 
 	bool measuretime = false;
 
-	int lifetime = 1000;
 	int timeBetweenBursts = 10000;
 	int burstAmt = 100;
 	int test = 1;

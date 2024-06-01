@@ -2,6 +2,7 @@
 
 #include <string>
 #include <map>
+#include <Debug.h>
 
 enum Setting
 {
@@ -21,7 +22,9 @@ enum Setting
 	PopupFadeOut,
 	PopupFadeOutSteps,
 	PopupFadeOutTime,
-	PopupOpacity
+	PopupOpacity,
+	DebugStrenght,
+	Overlay,
 };
 
 
@@ -42,6 +45,8 @@ struct Settings
 	double PopupFadeOutSteps;
 	int PopupFadeOutTime;
 	double PopupOpacity;
+	HornySeverity DebugStrenght;
+	int Overlay;
 };
 
 Settings*	ReadSettings();

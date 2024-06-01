@@ -36,6 +36,7 @@ public:
 	int Opacityx, Opacityy, Opacityw, Opacityh;
 	Fl_Hor_Slider* PopupOpacitySlider;
 	Fl_Value_Input* PopupOpacityInput;
+	Fl_Check_Button* Overlay;
 	//------------------------------------------------
 	int Lifespanx, Lifespany, Lifespanw, Lifespanh;
 	Fl_Check_Button* PopupLifespan;
@@ -47,7 +48,7 @@ public:
 	Fl_Hor_Slider* TimeBetweenPopupsSlider;
 	Fl_Value_Input* TimeBetweenPopupsInput;
 	//------------------------------------------------
-	int Multiplictorx, Multiplictory, Multiplictorw, Multiplictorh;
+	int Multiplicatorx, Multiplicatory, Multiplicatorw, Multiplicatorh;
 	Fl_Value_Input* MultiplicatiorInput;
 	//------------------------------------------------
 	int FolderPathx, FolderPathy, FolderPathw, FolderPathh;
@@ -66,6 +67,9 @@ public:
 	static void SetPopupFadeOutTimeInput(Fl_Widget* w, void* data);
 	static void SetPopupFadeOutStepsSlider(Fl_Widget* w, void* data);
 	static void SetPopupFadeOutTimeSlider(Fl_Widget* w, void* data);
+	static void SetPopupOpacitySlider(Fl_Widget* w, void* data);
+	static void SetPopupOpacityInput(Fl_Widget* w, void* data);
+
 	PopupSettings(int x, int y, int w, int h);
 };
 
