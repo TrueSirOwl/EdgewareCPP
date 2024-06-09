@@ -8,6 +8,7 @@ Popup::Popup(ImageStorage& src, const Settings popsett): sett(popsett), ImageLib
 	getDisplays();
 	this->window = SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_BORDERLESS | SDL_WINDOW_HIDDEN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_SKIP_TASKBAR);
 	if (this->window == NULL) {
+		LOG(HERROR, this->sett.LoggingStrenght, "Window Creation Failed. AbortingPopup");
 		delete (this);
 	}
 
@@ -17,8 +18,10 @@ Popup::Popup(ImageStorage& src, const Settings popsett): sett(popsett), ImageLib
 	
 	this->PopupRenderer = SDL_CreateRenderer(this->window, 2 ,SDL_RENDERER_ACCELERATED);
 	if (this->PopupRenderer == NULL) {
+		LOG(HERROR, this->sett.LoggingStrenght, "Renderer Creation Failed. AbortingPopup");
 		delete(this);
 	}
+
 	getImage();
 	scaleImage();
 	placer();
@@ -49,27 +52,29 @@ void Popup::getImage() {
 	*/
 	this->imageTexture = IMG_LoadTexture(this->PopupRenderer, this->ContentPath.c_str());
 	while (this->imageTexture == NULL) {
-		LOG(WARNING, "Loading " + this->ContentPath + " Failed: " + (std::string)SDL_GetError() + ", trying diferent image");
+		LOG(WARNING, this->sett.LoggingStrenght, "Loading " + this->ContentPath + " Failed: " + (std::string)SDL_GetError() + ", trying diferent image");
 		SDL_ClearError();
+		this->ContentPath = ImageLib.getRandomImage();
+		std::cout << this->ContentPath << std::endl;
 		this->imageTexture = IMG_LoadTexture(this->PopupRenderer, this->ContentPath.c_str());
 	}
 	if (this->imageTexture == NULL) {
-		LOG(HERROR, this->ContentPath + " Could not be Loaded, Aborting Popup");
+		LOG(HERROR, this->sett.LoggingStrenght, this->ContentPath + " Could not be Loaded, Aborting Popup");
 		delete(this);
 	}
 	if (SDL_QueryTexture(this->imageTexture, NULL, NULL, &this->imageW, &this->imageH) != 0) {
-		LOG(HERROR, "could not get dimensions of " + this->ContentPath);
+		LOG(HERROR, this->sett.LoggingStrenght, "could not get dimensions of " + this->ContentPath);
 	}
 	this->Content = getContentType();
 }
 
 ContentType Popup::getContentType() {
 	if (this->ContentPath.substr(this->ContentPath.find_last_of('.') + 1) == "gif") {
-		LOG(INFO, this->ContentPath + " treated as IMAGE");
+		LOG(INFO, this->sett.LoggingStrenght, this->ContentPath + " treated as GIF");
 		return(GIF);
 	}
 	else {
-		LOG(INFO, this->ContentPath + " treted as GIF");
+		LOG(INFO, this->sett.LoggingStrenght, this->ContentPath + " treated as IMAGE");
 		return (IMAGE);
 	}
 }
@@ -82,13 +87,14 @@ void Popup::scaleImage() {
 	std::default_random_engine randomizerEngine(rd());
 	std::uniform_real_distribution<double> scaleFactor(0.7, 1);
 	sourceSize = 1 + (std::max<int>(this->imageW, this->imageH) / std::min<int>(this->displaySizes[0].w, this->displaySizes[0].h));
+	sourceSize = 1 + (std::max<int>(this->imageW, this->imageH) / std::min<int>(1920, 1080));
+
 	targetSize = scaleFactor(randomizerEngine);
 	this->resizeFactor = targetSize / sourceSize;
 	this->target.w = static_cast<int>(this->imageW * resizeFactor);
 	this->target.h = static_cast<int>(this->imageH * resizeFactor);
 
 	SDL_SetWindowSize(this->window, this->target.w, this->target.h);
-
 	/* get resize factor :
 	source size is: max image dimension / min screen dimension
 	target size is: randomized number (0-1)
@@ -101,9 +107,11 @@ void Popup::scaleImage() {
 
 void Popup::placer() {
 	std::random_device rd;
-	std::default_random_engine randomizerEngine(rd());
-	std::uniform_int_distribution<int> WhereH(0, this->displaySizes[0].h - this->target.h);
-	std::uniform_int_distribution<int> WhereW(0, this->displaySizes[0].w - this->target.w);
+std::default_random_engine randomizerEngine(rd());
+//std::uniform_int_distribution<int> WhereH(0, this->displaySizes[0].h - this->target.h);
+	//std::uniform_int_distribution<int> WhereW(0, this->displaySizes[0].w - this->target.w);
+	std::uniform_int_distribution<int> WhereH(0, 1080 - this->target.h);
+	std::uniform_int_distribution<int> WhereW(0, 1920 - this->target.w);
 	this->ImageLocX = WhereW(randomizerEngine);
 	this->ImageLocY = WhereH(randomizerEngine);
 	SDL_SetWindowPosition(this->window, this->ImageLocX, this->ImageLocY);
@@ -260,11 +268,14 @@ Popup::~Popup() {
 
 #if defined(_WIN32)
 
+			LOG(INFO,this->sett.LoggingStrenght,"Activting Clickthrough for Windows");
 			HWND hwnd = wmInfo.info.win.window;
 			SetWindowLong(hwnd, GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_TRANSPARENT);
 #endif
 
 #if defined(__APPLE__)
+
+			LOG(INFO, this->sett.LoggingStrenght, "Activting Clickthrough for Apple");
 			NSWindow* nswindow = wmInfo.info.cocoa.window;
 			[nswindow setIgnoresMouseEvents : YES] ;
 			[nswindow setCanBecomeKeyWindow : NO] ;
@@ -272,6 +283,7 @@ Popup::~Popup() {
 #endif
 
 #if defined(__linux__)
+			LOG(INFO, this->sett.LoggingStrenght, "Activting Clickthrough for Linux");
 			Display* display = wmInfo.info.x11.display;
 			Window xwindow = wmInfo.info.x11.window;
 
@@ -292,6 +304,6 @@ Popup::~Popup() {
 #endif
 		}
 		else {
-			std::cerr << "SDL_GetWindowWMInfo Error: " << SDL_GetError() << std::endl;
+			LOG(HERROR, this->sett.LoggingStrenght, "SDL_GetWindowWMInfo Error : " + static_cast<std::string>(SDL_GetError()));
 		}
 	}

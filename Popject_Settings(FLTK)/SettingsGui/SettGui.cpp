@@ -186,6 +186,14 @@ int SettGui::getPopupOverlay() {
 	return(this->PopSett->Overlay->value());
 }
 
+int SettGui::getLoggingStrength() {
+	return(this->AdvSett->LoggingStrength->value());
+}
+
+int SettGui::getBurstAmt() {
+	return(this->PopSett->BurstAmountSlider->value());
+}
+
 void saveAndClose(Fl_Widget* win, void* Src) {
 	SettGui* Gui = static_cast<SettGui*>(Src);
 	std::ofstream Settings("../../shared/Settings.txt");
@@ -203,11 +211,13 @@ void saveAndClose(Fl_Widget* win, void* Src) {
 	Settings << "MinYButtonHeight=" << Gui->getMinYButtonHeight() << std::endl;
 	Settings << "MaxYButtonHeight=" << Gui->getMaxYButtonHeight() << std::endl;
 	Settings << "Multiplicator=" << Gui->getMultiplicatior() << std::endl;
+	Settings << "BurstAmt=" << Gui->getBurstAmt() << std::endl;
 	Settings << "PopupFadeOut=" << Gui->getPopupFadeOut() << std::endl;
 	Settings << "PopupFadeOutSteps=" << Gui->getPopupFadeOutSteps() << std::endl;
 	Settings << "PopupFadeOutTime=" << Gui->getPopupFadeOutTime() << std::endl;
 	Settings << "PopupOpacity=" << Gui->getPopupOpacity() << std::endl;
 	Settings << "PopupOverlay=" << Gui->getPopupOverlay() << std::endl;
+	Settings << "LoggingStrength=" << Gui->getLoggingStrength() << std::endl;
 	//Settings << "" << Gui << std::endl;
 	if (Fl::event() == FL_CLOSE) {
 		win->hide();

@@ -75,11 +75,11 @@ PopupSettings::PopupSettings(int x, int y, int w, int h) : Fl_Double_Window(x, y
 	}
 	//------------------------------------------------
 	Opacityx = 150;
-	Opacityy = 300;
+	Opacityy = 90;
 	Opacityw = 0;
 	Opacityh = 0;
 
-	this->PopupOpacitySlider = new Fl_Hor_Slider(Opacityx, Opacityy,200,20,"Opacity");
+	this->PopupOpacitySlider = new Fl_Hor_Slider(Opacityx, Opacityy,220,20,"Opacity");
 	this->PopupOpacitySlider->value(this->SettingsFileContent->PopupOpacity);
 	this->PopupOpacitySlider->align(FL_ALIGN_LEFT);
 	this->PopupOpacitySlider->maximum(1);
@@ -87,7 +87,7 @@ PopupSettings::PopupSettings(int x, int y, int w, int h) : Fl_Double_Window(x, y
 	this->PopupOpacitySlider->step(0.01);
 	this->PopupOpacitySlider->tooltip("Sets the Opactity of the Popups");
 	this->PopupOpacitySlider->callback(SetPopupOpacityInput,this);
-	this->PopupOpacityInput = new Fl_Value_Input(Opacityx + 200, Opacityy, 50, 20);
+	this->PopupOpacityInput = new Fl_Value_Input(Opacityx + 220, Opacityy, 50, 20);
 	this->PopupOpacityInput->value(this->SettingsFileContent->PopupOpacity);
 	this->PopupOpacityInput->callback(SetPopupOpacitySlider, this);
 	
@@ -130,7 +130,7 @@ PopupSettings::PopupSettings(int x, int y, int w, int h) : Fl_Double_Window(x, y
 	//------------------------------------------------
 
 	FolderPathx = 150;
-	FolderPathy = 130;
+	FolderPathy = 170;
 	FolderPathw = 0;
 	FolderPathh = 0;
 
@@ -140,13 +140,13 @@ PopupSettings::PopupSettings(int x, int y, int w, int h) : Fl_Double_Window(x, y
 	//------------------------------------------------
 
 	TimeBetweenx = 150;
-	TimeBetweeny = 110;
+	TimeBetweeny = 150;
 	TimeBetweenw = 0;
 	TimeBetweenh = 0;
 
 	this->TimeBetweenPopupsInput = new Fl_Value_Input(TimeBetweenx+220, TimeBetweeny, 50, 20);
 	this->TimeBetweenPopupsInput->value(this->SettingsFileContent->TimeBetweenPopups);
-	this->TimeBetweenPopupsInput->tooltip("Sets the time between Popups");
+	this->TimeBetweenPopupsInput->tooltip("Sets the time between Popups, Min time is always image loading time");
 	this->TimeBetweenPopupsInput->callback(SetTimeBetweenPopupsSlider, this);
 
 	this->TimeBetweenPopupsSlider = new Fl_Hor_Slider(TimeBetweenx+20, TimeBetweeny, 200, 20);
@@ -154,12 +154,12 @@ PopupSettings::PopupSettings(int x, int y, int w, int h) : Fl_Double_Window(x, y
 	this->TimeBetweenPopupsSlider->maximum(10000);
 	this->TimeBetweenPopupsSlider->step(1);
 	this->TimeBetweenPopupsSlider->value(this->SettingsFileContent->TimeBetweenPopups);
-	this->TimeBetweenPopupsSlider->tooltip("Sets the time between Popups");
+	this->TimeBetweenPopupsSlider->tooltip("Sets the time between Popups, Min time is always image loading time");
 	this->TimeBetweenPopupsSlider->callback(SetTimeBetweenPopupsInput, this);
 
 	this->TimeBetweenPopups = new Fl_Check_Button(TimeBetweenx, TimeBetweeny, 20, 20, "TimeBetweenPopups");
 	this->TimeBetweenPopups->align(FL_ALIGN_LEFT);
-	this->TimeBetweenPopups->tooltip("Sets the time between Popups");
+	this->TimeBetweenPopups->tooltip("Sets the time between Popups, Min time is always image loading time");
 	this->TimeBetweenPopups->callback(SetTimeBeteenPopups, this);
 	this->TimeBetweenPopups->value(1);
 	if (this->SettingsFileContent->TimeBetweenPopups < 0) {
@@ -169,8 +169,25 @@ PopupSettings::PopupSettings(int x, int y, int w, int h) : Fl_Double_Window(x, y
 	}
 	//------------------------------------------------
 
+	Burstx = 150;
+	Bursty = 130;
+
+	this->BurstAmountSlider = new Fl_Hor_Slider(Burstx, Bursty, 220, 20, "Multipop");
+	this->BurstAmountSlider->align(FL_ALIGN_LEFT);
+	this->BurstAmountSlider->value(this->SettingsFileContent->BurstAmt);
+	this->BurstAmountSlider->bounds(1, 100);
+	this->BurstAmountSlider->step(1);
+	this->BurstAmountSlider->tooltip("Sets Amount of Popups per activation");
+	this->BurstAmountSlider->callback(SetBurstAmountInput, this);
+
+	this->BurstAmountInput = new Fl_Value_Input(Burstx + 220, Bursty, 50, 20 );
+	this->BurstAmountInput->value(this->SettingsFileContent->BurstAmt);
+	this->BurstAmountInput->tooltip("Sets Amount of Popups per activation");
+	this->BurstAmountInput->callback(SetBurstAmountSlider, this);
+	//------------------------------------------------
+
 	Multiplicatorx = 150;
-	Multiplicatory = 90;
+	Multiplicatory = 300;
 	Multiplicatorw = 0;
 	Multiplicatorh = 0;
 
@@ -320,5 +337,26 @@ void PopupSettings::SetPopupOpacitySlider(Fl_Widget* w, void* data) {
 void PopupSettings::SetPopupOpacityInput(Fl_Widget* w, void* data) {
 	PopupSettings* Gui = static_cast<PopupSettings*>(data);
 	Gui->PopupOpacityInput->value(Gui->PopupOpacitySlider->value());
+}
 
+void PopupSettings::SetBurstModeActivity(Fl_Widget* w, void* data) {
+	PopupSettings* Gui = static_cast<PopupSettings*>(data);
+	if (Gui->EnableBurst->value() == 0) {
+		Gui->BurstAmountSlider->deactivate();
+		Gui->BurstAmountInput->deactivate();
+	} else {
+		Gui->BurstAmountSlider->activate();
+		Gui->BurstAmountInput->activate();
+	}
+}
+
+void PopupSettings::SetBurstAmountSlider(Fl_Widget* w, void* data) {
+	PopupSettings* Gui = static_cast<PopupSettings*>(data);
+	Gui->BurstAmountSlider->value(Gui->BurstAmountInput->value());
+}
+
+
+void PopupSettings::SetBurstAmountInput(Fl_Widget* w, void* data) {
+	PopupSettings* Gui = static_cast<PopupSettings*>(data);
+	Gui->BurstAmountInput->value(Gui->BurstAmountSlider->value());
 }

@@ -1,18 +1,26 @@
 #include <Debug.h>
 
-void LOG(HornySeverity s, std::string message) {
+void LOG(HornySeverity s, int strength, std::string message) {
 	switch (s) {
 	case INFO:
-		Log << "INFO: " << message << std::endl;
+		if (strength <= INFO) {
+			Log << "INFO: " << message << std::endl;
+		}
 		break;
 	case WARNING:
-		Log << "WARNING: " << message << std::endl;
+		if (strength <= WARNING) {
+			Log << "WARNING: " << message << std::endl;
+		}
 		break;
 	case HERROR:
-		Log << "ERROR: " << message << std::endl;
+		if (strength <= HERROR) {
+			Log << "ERROR: " << message << std::endl;
+		}
 		break;
 	case FATAL:
-		Log << "FATAL: " << message << std::endl;
+		if (strength <= FATAL) {
+			Log << "FATAL: " << message << std::endl;
+		}
 		break;
 	default:
 		break;

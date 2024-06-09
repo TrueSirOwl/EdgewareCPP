@@ -44,15 +44,14 @@ void CreateLogFile() {
 int main(int argc, char* argv[]) {
 	SDL_Init(SDL_INIT_VIDEO);
 
-	SDL_SetHint(SDL_HINT_HIDAPI_IGNORE_DEVICES, "0x1532/0x0084");
-
 	Settings* Sett = ReadSettings();
+	std::cout << sizeof(*Sett) << std::endl;
 	CreateLogFile();
 
 	//B:\EdgewarePlusPlus-main\EdgeWare\resource\img
 	//L:/Steam/userdata/86245047/760/remote/244850/screenshots
 	ImageStorage IMGLib = ImageStorage(Sett->ImageFolderPath);
-	LOG(INFO, "Getting Images from : "+ Sett->ImageFolderPath);
+	LOG(INFO, Sett->LoggingStrenght , "Getting Images from : "+ Sett->ImageFolderPath);
 	const Uint8* state = SDL_GetKeyboardState(NULL);
 	struct timeb _start;
 	ftime(&_start);
@@ -65,9 +64,7 @@ int main(int argc, char* argv[]) {
 
 	bool measuretime = false;
 
-	int timeBetweenBursts = 10000;
-	int burstAmt = 100;
-	int test = 1;
+	int test = 2;
 	int c = 0;
 	bool run = true;
 	std::vector<Popup*> Popups;
@@ -125,7 +122,7 @@ int main(int argc, char* argv[]) {
 		while (true) {
 			SDL_PumpEvents();
 			ftime(&now);
-			if ((now.time * 1000 + now.millitm) - (lastPop.time * 1000 + lastPop.millitm) > timeBetweenBursts) {
+			if ((now.time * 1000 + now.millitm) - (lastPop.time * 1000 + lastPop.millitm) > Sett->TimeBetweenPopups) {
 				ftime(&lastPop);
 				Burster* burst = new Burster(*Sett, IMGLib);
 				buff.push_back(burst);

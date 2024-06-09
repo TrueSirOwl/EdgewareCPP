@@ -53,7 +53,12 @@ public:
 	//------------------------------------------------
 	int FolderPathx, FolderPathy, FolderPathw, FolderPathh;
 	Fl_Input* ImageFolderPath;
+	//------------------------------------------------
+	int Burstx, Bursty;
 
+	Fl_Check_Button* EnableBurst;
+	Fl_Hor_Slider* BurstAmountSlider;
+	Fl_Value_Input* BurstAmountInput;
 
 	static void ResizeButtonTextField(Fl_Widget* w, void* data);
 	static void SetTimeBeteenPopups(Fl_Widget* w, void* data);
@@ -69,6 +74,9 @@ public:
 	static void SetPopupFadeOutTimeSlider(Fl_Widget* w, void* data);
 	static void SetPopupOpacitySlider(Fl_Widget* w, void* data);
 	static void SetPopupOpacityInput(Fl_Widget* w, void* data);
+	static void SetBurstModeActivity(Fl_Widget* w, void* data);
+	static void SetBurstAmountSlider(Fl_Widget* w, void* data);
+	static void SetBurstAmountInput(Fl_Widget* w, void* data);
 
 	PopupSettings(int x, int y, int w, int h);
 };

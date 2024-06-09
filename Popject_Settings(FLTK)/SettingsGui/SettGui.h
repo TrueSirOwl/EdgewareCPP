@@ -86,6 +86,8 @@ public:
 	int getPopupFadeOutTime();
 	double getPopupOpacity();
 	int getPopupOverlay();
+	int getLoggingStrength();
+	int getBurstAmt();
 };
 
 void saveAndClose(Fl_Widget* Gui, void* Src);

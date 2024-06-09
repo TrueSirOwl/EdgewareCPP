@@ -33,11 +33,14 @@ Setting OwOWhatSettingDis(std::string line) {
 		{"MinYButtonHeight", Setting::MinYButtonHeight},
 		{"MaxYButtonHeight", Setting::MaxYButtonHeight},
 		{"Multiplicator", Setting::Multiplicator},
+		{"EnableBurst", Setting::EnableBurst},
+		{"BurstAmt", Setting::BurstAmt},
 		{"PopupFadeOut", Setting::PopupFadeOut},
 		{"PopupFadeOutSteps", Setting::PopupFadeOutSteps},
 		{"PopupFadeOutTime", Setting::PopupFadeOutTime},
 		{"PopupOpacity", Setting::PopupOpacity},
-		{"PopupOverlay", Setting::Overlay}
+		{"PopupOverlay", Setting::Overlay},
+		{"LoggingStrength", Setting::LoggingStrength},
 	};
 	std::map<std::string,Setting>::const_iterator it = lineToEnumMap.find(LineSetting);
 	if (it != lineToEnumMap.end()) {
@@ -92,6 +95,14 @@ void assign(std::string line, Setting sett, Settings* SettingsStruct) {
 		SettingsStruct->MaxYButtonHeight = std::stoi(line.substr(line.find('=') + 1, line.length()));
 		break;
 
+	case Setting::EnableBurst:
+		SettingsStruct->EnableBurst = std::stoi(line.substr(line.find('=') + 1, line.length()));
+		break;
+
+	case Setting::BurstAmt:
+		SettingsStruct->BurstAmt = std::stoi(line.substr(line.find('=') + 1, line.length()));
+		break;
+
 	case Setting::Multiplicator:
 		SettingsStruct->Multiplicator = std::stoi(line.substr(line.find('=') + 1, line.length()));
 		break;
@@ -114,6 +125,10 @@ void assign(std::string line, Setting sett, Settings* SettingsStruct) {
 
 	case Setting::Overlay:
 		SettingsStruct->Overlay = std::stod(line.substr(line.find('=') + 1, line.length()));
+		break;
+
+	case Setting::LoggingStrength:
+		SettingsStruct->LoggingStrenght = std::stoi(line.substr(line.find('=') + 1, line.length()));
 		break;
 
 	default:

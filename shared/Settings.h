@@ -18,12 +18,13 @@ enum Setting
 	MinYButtonHeight,
 	MaxYButtonHeight,
 	Multiplicator,
+	EnableBurst,
 	BurstAmt,
 	PopupFadeOut,
 	PopupFadeOutSteps,
 	PopupFadeOutTime,
 	PopupOpacity,
-	DebugStrenght,
+	LoggingStrength,
 	Overlay,
 };
 
@@ -40,12 +41,13 @@ struct Settings
 	int MinYButtonHeight;
 	int MaxYButtonHeight;
 	int Multiplicator;
+	int EnableBurst;
 	int BurstAmt;
 	bool PopupFadeOut;
 	double PopupFadeOutSteps;
 	int PopupFadeOutTime;
 	double PopupOpacity;
-	HornySeverity DebugStrenght;
+	int LoggingStrenght;
 	int Overlay;
 };
 
