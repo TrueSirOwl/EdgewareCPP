@@ -72,6 +72,7 @@ int main(int argc, char* argv[]) {
 	if (measuretime == true) {
 		std::cout << "start: " << (now.time * 1000 + now.millitm) - start << std::endl;
 	}
+	/*
 	if (test == 1) {
 		try
 		{
@@ -113,7 +114,8 @@ int main(int argc, char* argv[]) {
 			std::cout << e.what() << std::endl;
 		}
 	}
-	else if (test == 2) {
+	*/
+	if (test == 2) {
 		std::vector<Burster*> buff;
 		Burster* burst = new Burster(*Sett, IMGLib);
 		buff.push_back(burst);

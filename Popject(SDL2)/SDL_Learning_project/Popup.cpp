@@ -4,7 +4,8 @@
 #include <chrono>
 #include <Debug.h>
 
-Popup::Popup(ImageStorage& src, const Settings popsett): sett(popsett), ImageLib(src), lifetime(sett.PopupLifespan), death(false), born(false){
+Popup::Popup(ImageStorage& src, const Settings popsett, SDL_Renderer* PopupRenderer, SDL_Window* window, std::vector<SDL_Rect> displaySizes): sett(popsett), ImageLib(src), lifetime(sett.PopupLifespan), death(false), born(false), window(window), PopupRenderer(PopupRenderer),displaySizes(displaySizes){
+	/*
 	getDisplays();
 	this->window = SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_BORDERLESS | SDL_WINDOW_HIDDEN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_SKIP_TASKBAR);
 	if (this->window == NULL) {
@@ -21,17 +22,46 @@ Popup::Popup(ImageStorage& src, const Settings popsett): sett(popsett), ImageLib
 		LOG(HERROR, this->sett.LoggingStrenght, "Renderer Creation Failed. AbortingPopup");
 		delete(this);
 	}
-
+	*/
 	getImage();
 	scaleImage();
 	placer();
 	SDL_SetWindowOpacity(this->window, this->sett.PopupOpacity);
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
-	if (this->Content == GIF) {
-		Gif = IMG_LoadAnimation(this->ContentPath.c_str());
-	}
 }
 
+
+Popup::Popup(ImageStorage& src, const Settings popsett, std::vector<SDL_Rect> displaySizes, SDL_Renderer* PopupRenderer) : sett(popsett), ImageLib(src), lifetime(sett.PopupLifespan), death(false), born(false), window(NULL), PopupRenderer(PopupRenderer), displaySizes(displaySizes) {
+	/*
+	getDisplays();
+	this->window = SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_BORDERLESS | SDL_WINDOW_HIDDEN | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_SKIP_TASKBAR);
+	if (this->window == NULL) {
+		LOG(HERROR, this->sett.LoggingStrenght, "Window Creation Failed. AbortingPopup");
+		delete (this);
+	}
+
+	if (this->sett.Overlay == 1) {
+		SetWindowClickThrough();
+	}
+
+	this->PopupRenderer = SDL_CreateRenderer(this->window, 2 ,SDL_RENDERER_ACCELERATED);
+	if (this->PopupRenderer == NULL) {
+		LOG(HERROR, this->sett.LoggingStrenght, "Renderer Creation Failed. AbortingPopup");
+		delete(this);
+	}
+	*/
+	getImage();
+
+	SDL_SetTextureBlendMode(this->outpop.image, SDL_BLENDMODE_BLEND);
+	SDL_SetTextureAlphaMod(this->outpop.image, 128);
+
+	scaleImage();
+	placer();
+	//SDL_SetWindowOpacity(this->window, this->sett.PopupOpacity);
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
+}
+
+/*
 void Popup::getDisplays() {
 	this->displayNumber = SDL_GetNumVideoDisplays();
 	for ( int i = 0; i < this->displayNumber; i++) {
@@ -40,32 +70,41 @@ void Popup::getDisplays() {
 	}
 
 }
+*/
 
-void Popup::getImage() {
-	this->ContentPath = ImageLib.getRandomImage();
-	std::cout << this->ContentPath << std::endl;
 	/*
 	while (this->ContentPath.substr(this->ContentPath.find_last_of('.') + 1) != "gif") {
 		this->ContentPath = ImageLib.getRandomImage();
 		std::cout << this->ContentPath.substr(this->ContentPath.find_last_of('.') + 1) << std::endl;
 	}
 	*/
-	this->imageTexture = IMG_LoadTexture(this->PopupRenderer, this->ContentPath.c_str());
-	while (this->imageTexture == NULL) {
+
+void Popup::getImage() {
+	this->ContentPath = ImageLib.getRandomImage();
+	std::cout << this->ContentPath << std::endl;
+	this->outpop.type = getContentType();
+	if (this->outpop.type == GIF) {
+		this->outpop.gif = IMG_LoadAnimation(this->ContentPath.c_str());
+	}
+	else {
+		this->outpop.image = IMG_LoadTexture(this->PopupRenderer, this->ContentPath.c_str());
+	}
+	//==================safety LOOP======================//
+	while (this->outpop.image == NULL && this->outpop.gif == NULL) {
+		if (this->outpop.type == GIF) {
+			this->outpop.gif = IMG_LoadAnimation(this->ContentPath.c_str());
+		} else {
+			this->outpop.image = IMG_LoadTexture(this->PopupRenderer, this->ContentPath.c_str());
+		}
 		LOG(WARNING, this->sett.LoggingStrenght, "Loading " + this->ContentPath + " Failed: " + (std::string)SDL_GetError() + ", trying diferent image");
 		SDL_ClearError();
 		this->ContentPath = ImageLib.getRandomImage();
 		std::cout << this->ContentPath << std::endl;
-		this->imageTexture = IMG_LoadTexture(this->PopupRenderer, this->ContentPath.c_str());
 	}
-	if (this->imageTexture == NULL) {
-		LOG(HERROR, this->sett.LoggingStrenght, this->ContentPath + " Could not be Loaded, Aborting Popup");
-		delete(this);
-	}
-	if (SDL_QueryTexture(this->imageTexture, NULL, NULL, &this->imageW, &this->imageH) != 0) {
+	//===================================================//
+	if (SDL_QueryTexture(this->outpop.image, NULL, NULL, &this->outpop.pos.w, &this->outpop.pos.h) != 0) {
 		LOG(HERROR, this->sett.LoggingStrenght, "could not get dimensions of " + this->ContentPath);
 	}
-	this->Content = getContentType();
 }
 
 ContentType Popup::getContentType() {
@@ -86,15 +125,16 @@ void Popup::scaleImage() {
 	std::random_device rd;
 	std::default_random_engine randomizerEngine(rd());
 	std::uniform_real_distribution<double> scaleFactor(0.7, 1);
-	sourceSize = 1 + (std::max<int>(this->imageW, this->imageH) / std::min<int>(this->displaySizes[0].w, this->displaySizes[0].h));
-	sourceSize = 1 + (std::max<int>(this->imageW, this->imageH) / std::min<int>(1920, 1080));
+	sourceSize = 1 + (std::max<int>(this->outpop.pos.w, this->outpop.pos.h) / std::min<int>(this->displaySizes[0].w, this->displaySizes[0].h));
+	sourceSize = 1 + (std::max<int>(this->outpop.pos.w, this->outpop.pos.h) / std::min<int>(this->displaySizes[0].w, this->displaySizes[0].h));
 
 	targetSize = scaleFactor(randomizerEngine);
 	this->resizeFactor = targetSize / sourceSize;
-	this->target.w = static_cast<int>(this->imageW * resizeFactor);
-	this->target.h = static_cast<int>(this->imageH * resizeFactor);
+	this->outpop.pos.w = static_cast<int>(this->outpop.pos.w * resizeFactor);
+	this->outpop.pos.h = static_cast<int>(this->outpop.pos.h * resizeFactor);
 
-	SDL_SetWindowSize(this->window, this->target.w, this->target.h);
+	//SDL_SetWindowSize(this->window, this->target.w, this->target.h);
+	
 	/* get resize factor :
 	source size is: max image dimension / min screen dimension
 	target size is: randomized number (0-1)
@@ -110,11 +150,11 @@ void Popup::placer() {
 std::default_random_engine randomizerEngine(rd());
 //std::uniform_int_distribution<int> WhereH(0, this->displaySizes[0].h - this->target.h);
 	//std::uniform_int_distribution<int> WhereW(0, this->displaySizes[0].w - this->target.w);
-	std::uniform_int_distribution<int> WhereH(0, 1080 - this->target.h);
-	std::uniform_int_distribution<int> WhereW(0, 1920 - this->target.w);
-	this->ImageLocX = WhereW(randomizerEngine);
-	this->ImageLocY = WhereH(randomizerEngine);
-	SDL_SetWindowPosition(this->window, this->ImageLocX, this->ImageLocY);
+	std::uniform_int_distribution<int> WhereH(0, this->displaySizes[0].h - this->target.h);
+	std::uniform_int_distribution<int> WhereW(0, this->displaySizes[0].w - this->target.w);
+	this->outpop.pos.x = WhereW(randomizerEngine);
+	this->outpop.pos.y = WhereH(randomizerEngine);
+	SDL_SetWindowPosition(this->window, this->outpop.pos.x, this->outpop.pos.y);
 }
 
 void Popup::PopUp() {
@@ -184,24 +224,24 @@ void Popup::ImageThread() {
 void Popup::renderGif() {
 	struct timeb now;
 	ftime(&now);
-	int Gif_length = Gif->count;
+	int Gif_length = this->outpop.gif->count;
 	if (this->Current_image >= Gif_length) {
 		this->Current_image = 0;
 	}
-	if (((long long)now.time * 1000 + now.millitm) - last_image >= Gif->delays[this->Current_image]) {
-		SDL_DestroyTexture(this->imageTexture);
-		this->imageTexture = SDL_CreateTextureFromSurface(this->PopupRenderer, Gif->frames[this->Current_image++]);
-		SDL_RenderCopy(this->PopupRenderer, this->imageTexture, NULL, NULL);
+	if (((long long)now.time * 1000 + now.millitm) - last_image >= this->outpop.gif->delays[this->Current_image]) {
+		SDL_DestroyTexture(this->outpop.image);
+		this->outpop.image = SDL_CreateTextureFromSurface(this->PopupRenderer, this->outpop.gif->frames[this->Current_image++]);
+		SDL_RenderCopy(this->PopupRenderer, this->outpop.image, NULL, NULL);
 		SDL_RenderPresent(this->PopupRenderer);
 		last_image = (long long)now.time * 1000 + now.millitm;
 	}
 }
 
 void Popup::renderImage() {
-	//SDL_DestroyTexture(this->imageTexture);
-	//this->imageTexture = SDL_CreateTextureFromSurface(this->PopupRenderer,this->imageSurface);
+	//SDL_DestroyTexture(this->outpop.image);
+	//this->outpop.image = SDL_CreateTextureFromSurface(this->PopupRenderer,this->imageSurface);
 	//SDL_FreeSurface(this->imageSurface);
-	SDL_RenderCopy(this->PopupRenderer, this->imageTexture, NULL, NULL);
+	SDL_RenderCopy(this->PopupRenderer, this->outpop.image, NULL, NULL);
 }
 
 void Popup::GifFadeout() {
@@ -245,15 +285,8 @@ void Popup::FadeOut() {
 	}
 }
 
-Popup::~Popup() {
-	//std::cout << "Popup vaporised" << std::endl;
-	SDL_HideWindow(this->window);
-	if (this->PopupRenderer != NULL) {
-		SDL_DestroyRenderer(this->PopupRenderer);
-	}
-	if (this->window != NULL) {
-		SDL_DestroyWindow(this->window);
-	}
+const slut Popup::GetOutpop() {
+	return (this->outpop);
 }
 
 #if defined(_WIN32)
@@ -307,3 +340,14 @@ Popup::~Popup() {
 			LOG(HERROR, this->sett.LoggingStrenght, "SDL_GetWindowWMInfo Error : " + static_cast<std::string>(SDL_GetError()));
 		}
 	}
+
+	Popup::~Popup() {
+	//std::cout << "Popup vaporised" << std::endl;
+	SDL_HideWindow(this->window);
+	if (this->PopupRenderer != NULL) {
+		SDL_DestroyRenderer(this->PopupRenderer);
+	}
+	if (this->window != NULL) {
+		SDL_DestroyWindow(this->window);
+	}
+}

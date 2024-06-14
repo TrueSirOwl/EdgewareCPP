@@ -14,29 +14,36 @@ enum ContentType
 	GIF
 };
 
+typedef struct displayedImage {
+	SDL_Rect pos;
+	ContentType type;
+	SDL_Texture* image = NULL;
+	IMG_Animation* gif = NULL;
+}slut;
+
 class Popup
 {
 private:
 	Settings sett;
-
 	ImageStorage ImageLib;
 	SDL_Renderer* PopupRenderer;
 	SDL_Window* window;
-	SDL_Texture* imageTexture;
+	/*
+	int displayNumber;
+	*/
+	std::vector<SDL_Rect>displaySizes;
 	
-	int imageW;
-	int imageH;
+	//SDL_Texture* imageTexture;
+	//int imageW;
+	//int imageH;
+	//IMG_Animation *Gif;
+	//int ImageLocX, ImageLocY;
 
-	IMG_Animation *Gif;
 	int Current_image;
 	long long last_image;
 
 	std::string ContentPath;
 
-	int displayNumber;
-	std::vector<SDL_Rect>displaySizes;
-
-	int ImageLocX, ImageLocY;
 
 	double resizeFactor;
 	SDL_Rect target;
@@ -46,10 +53,12 @@ private:
 	struct timeb birth;
 	bool born;
 
+	slut outpop;
+
 
 	void getImage();
 	void scaleImage();
-	void getDisplays();
+	//void getDisplays();
 	void renderImage();
 	void renderGif();
 	void placer();
@@ -66,7 +75,11 @@ public:
 	bool death;
 
 	ContentType getContentType();
-	Popup(ImageStorage& src, const Settings popsett);
+	Popup(ImageStorage& src, const Settings popsett, SDL_Renderer* PopupRenderer, SDL_Window* window, std::vector<SDL_Rect> displaySizes);
+	
+	Popup(ImageStorage& src, const Settings popsett, std::vector<SDL_Rect> displaySizes, SDL_Renderer* PopupRenderer);
+	
+	const slut GetOutpop();
 
 	void PopUp();
 
