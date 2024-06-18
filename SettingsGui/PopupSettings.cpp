@@ -1,13 +1,11 @@
-#pragma once
-
-#include "PopupSettings.h"
+#include "PopupSettings.hpp"
 #include <iostream>
 #include <cmath>
 
-PopupSettings::PopupSettings(int x, int y, int w, int h) : Fl_Double_Window(x, y, w, h),X(x),Y(y),W(w),H(h) {
+PopupSettings::PopupSettings(int x, int y, int w, int h, Settings* sett) : Fl_Double_Window(x, y, w, h),X(x),Y(y),W(w),H(h), SettingsFileContent(sett) {
 	box(FL_BORDER_BOX);
 
-	this->SettingsFileContent = ReadSettings();
+	//this->SettingsFileContent = ReadSettings();
 	//------------------------------------------------
 	this->ButtonXinput = new Fl_Value_Slider(w-50, h- this->SettingsFileContent->MaxYButtonHeight -120, 40, 100, "ButtonX");
 	this->ButtonXinput->value(this->SettingsFileContent->ButtonX);
@@ -339,17 +337,6 @@ void PopupSettings::SetPopupOpacityInput(Fl_Widget* w, void* data) {
 	Gui->PopupOpacityInput->value(Gui->PopupOpacitySlider->value());
 }
 
-void PopupSettings::SetBurstModeActivity(Fl_Widget* w, void* data) {
-	PopupSettings* Gui = static_cast<PopupSettings*>(data);
-	if (Gui->EnableBurst->value() == 0) {
-		Gui->BurstAmountSlider->deactivate();
-		Gui->BurstAmountInput->deactivate();
-	} else {
-		Gui->BurstAmountSlider->activate();
-		Gui->BurstAmountInput->activate();
-	}
-}
-
 void PopupSettings::SetBurstAmountSlider(Fl_Widget* w, void* data) {
 	PopupSettings* Gui = static_cast<PopupSettings*>(data);
 	Gui->BurstAmountSlider->value(Gui->BurstAmountInput->value());
@@ -359,4 +346,28 @@ void PopupSettings::SetBurstAmountSlider(Fl_Widget* w, void* data) {
 void PopupSettings::SetBurstAmountInput(Fl_Widget* w, void* data) {
 	PopupSettings* Gui = static_cast<PopupSettings*>(data);
 	Gui->BurstAmountInput->value(Gui->BurstAmountSlider->value());
+}
+
+PopupSettings::~PopupSettings() {
+	delete (this->ButtonXinput);
+	delete (this->ButtonYinput);
+	delete (this->ButtonTextInput);
+	delete (this->PopupFadeOut);
+	delete (this->PopupFadeOutStepsSlider);
+	delete (this->PopupFadeOutTimeSlider);
+	delete (this->PopupFadeOutStepsInput);
+	delete (this->PopupFadeOutTimeInput);
+	delete (this->PopupOpacitySlider);
+	delete (this->PopupOpacityInput);
+	delete (this->Overlay);
+	delete (this->PopupLifespan);
+	delete (this->PopupLifespanInput);
+	delete (this->PopupLifespanSlider);
+	delete (this->TimeBetweenPopups);
+	delete (this->TimeBetweenPopupsSlider);
+	delete (this->TimeBetweenPopupsInput);
+	delete (this->MultiplicatiorInput);
+	delete (this->ImageFolderPath);
+	delete (this->BurstAmountInput);
+	delete (this->BurstAmountSlider);
 }

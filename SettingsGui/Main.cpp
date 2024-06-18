@@ -1,4 +1,4 @@
-#include "SettGui.h"
+#include "SettGui.hpp"
 
 int main() {
 	SettGui G;

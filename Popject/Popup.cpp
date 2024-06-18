@@ -2,7 +2,7 @@
 #include <random>
 #include <algorithm>
 #include <chrono>
-#include <Debug.h>
+#include <SDL_syswm.h>
 
 Popup::Popup(ImageStorage& src, const Settings popsett): sett(popsett), ImageLib(src), lifetime(sett.PopupLifespan), death(false), born(false){
 	getDisplays();
@@ -259,6 +259,12 @@ Popup::~Popup() {
 #if defined(_WIN32)
 #include <windows.h>
 #include <SDL_syswm.h>
+#endif
+
+#if defined(__linux__)
+#include <X11/Xlib.h>
+#include <X11/extensions/Xfixes.h>
+#include <X11/extensions/shape.h>
 #endif
 
 	void Popup::SetWindowClickThrough() {

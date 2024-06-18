@@ -3,41 +3,27 @@
 #include <SDL_image.h>
 #include <SDL_error.h>
 #include "ImageStorage.hpp"
-#include "Popup.hpp"
-#include "Burster.h"
+//#include "Popup.hpp"
+#include "Burster.hpp"
 #include <random>
-#include <vector>
 #include <future>
 #include <exception>
-#include <Settings.h>
+//#include "../shared/Settings.h"
+//#include "../shared/Debug.h"
 #include <fstream>
 #include <chrono>
 #include <ctime>
 #include <cerrno>
 #include <cstring>
-#include <Debug.h>
 
-std::ofstream Log;
 
-void playGif(IMG_Animation* Gif, SDL_Renderer* renderer, SDL_Texture* texture, SDL_Surface* screen, SDL_Window* window);
+//void playGif(IMG_Animation* Gif, SDL_Renderer* renderer, SDL_Texture* texture, SDL_Surface* screen, SDL_Window* window);
 
 void cleanup(std::vector<Popup*> Popups) {
 	for (auto it = Popups.begin(); it != Popups.end();) {
 		delete* it;
 		it = Popups.erase(it++);
 	}
-}
-
-void CreateLogFile() {
-	auto runt = std::chrono::system_clock::now();
-	std::time_t runTime = std::chrono::system_clock::to_time_t(runt);
-	std::string time = "L:/CPP_learning_stuff/Logs/Log_";
-	time.append(std::ctime(&runTime));
-	time.erase(time.find("\n"));
-	time.append(".hornylog");
-	std::replace(time.begin(), time.end(), ' ', '_');
-	std::replace(time.begin() + 2, time.end(), ':', '_');
-	Log = std::ofstream(time.c_str());
 }
 
 
@@ -213,7 +199,7 @@ int main(int argc, char* argv[]) {
 					//std::cout << Gif->frames[0]->format->format << std::endl;
 					std::cout << Gif->count << std::endl;
 				}
-				playGif(Gif, renderer, texture, screen, window);
+				//playGif(Gif, renderer, texture, screen, window);
 			}
 			else if (change == 1) {
 				SDL_FreeSurface(image);

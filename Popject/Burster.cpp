@@ -1,5 +1,4 @@
-#include "Burster.h"
-
+#include "Burster.hpp"
 
 Burster::Burster(Settings sett , ImageStorage& src): IMGLib(src) {
 	for (int i = 0; i < sett.BurstAmt; i++)

@@ -1,4 +1,5 @@
 #pragma once
+
 #include "ImageStorage.hpp"
 #include <SDL.h>
 #include <SDL_image.h>
@@ -6,7 +7,8 @@
 #include <ctime>
 #include <sys/timeb.h>
 #include <thread>
-#include <Settings.h>
+#include "../shared/Settings.hpp"
+//#include "../shared/Debug.h"
 
 enum ContentType
 {

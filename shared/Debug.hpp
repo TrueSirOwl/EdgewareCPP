@@ -12,4 +12,5 @@ enum HornySeverity {
 	FATAL
 };
 
+void CreateLogFile();
 void LOG(HornySeverity s,int setting, std::string message);

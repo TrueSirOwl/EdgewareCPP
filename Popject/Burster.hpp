@@ -1,7 +1,7 @@
 #pragma once
 #include "Popup.hpp"
-#include <vector>
-#include <Settings.h>
+//#include <vector>
+//#include "../shared/Settings.h"
 
 class Burster
 {

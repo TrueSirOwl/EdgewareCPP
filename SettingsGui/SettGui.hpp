@@ -4,9 +4,10 @@
 #include <FL/Fl_Group.H>
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Button.H>
-#include "PopupSettings.h"
-#include "GeneralSettings.h"
-#include "AdvancedSettings.h"
+#include "PopupSettings.hpp"
+#include "GeneralSettings.hpp"
+#include "AdvancedSettings.hpp"
+#include "../shared/Settings.hpp"
 
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Hor_Value_Slider.H>
@@ -35,10 +36,8 @@ private:
 	PopupSettings* PopSett;
 	GeneralSettings* GenSett;
 	AdvancedSettings* AdvSett;
-	//int ButtonX;
-	//int ButtonY;
-	//char* ButtonText;
-	//int PopupLifespan;
+
+	Settings* SettingsFileContent;
 
 	std::vector<Fl_Button*> SelectorPanelButtons;
 	std::vector<const char*> SelectorPanelButtonNames = {
@@ -53,6 +52,8 @@ private:
 
 public:
 	SettGui();
+	~SettGui();
+
 	void update(int CurrentlyOpenPageNum);
 
 	void BuildMenueSelectorPanel(std::vector<const char*> &names);

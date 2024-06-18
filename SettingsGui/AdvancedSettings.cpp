@@ -1,11 +1,11 @@
-#include "AdvancedSettings.h"
+#include "AdvancedSettings.hpp"
 
 #include <iostream>
 
-AdvancedSettings::AdvancedSettings(int x, int y, int w, int h) : Fl_Window(x, y, w, h), X(x), Y(y), W(w), H(h) {
+AdvancedSettings::AdvancedSettings(int x, int y, int w, int h, Settings* sett) : Fl_Window(x, y, w, h), X(x), Y(y), W(w), H(h), SettingsFileContent(sett) {
 	box(FL_BORDER_BOX);
 
-	this->SettingsFileContent = ReadSettings();
+	//this->SettingsFileContent = ReadSettings();
 
 	/*----------------------------------------------------------------------------------*/
 	ButtonHeightx = 50;
@@ -49,6 +49,16 @@ AdvancedSettings::AdvancedSettings(int x, int y, int w, int h) : Fl_Window(x, y,
 	/*----------------------------------------------------------------------------------*/
 }
 
+AdvancedSettings::~AdvancedSettings()
+{
+	delete (this->MinXButtonHeightInput);
+	delete (this->MaxYButtonHeightInput);
+	delete (this->MinYButtonHeightInput);
+	delete (this->MaxXButtonHeightInput);
+	delete (this->LoggingStrength);
+	delete (this->LoggingStrengthText);
+	delete (this->LoggingStrengthTextContent);
+}
 
 void AdvancedSettings::SetLoggingStrenght(Fl_Widget* w, void* data) {
 	AdvancedSettings* Gui = static_cast<AdvancedSettings*>(data);

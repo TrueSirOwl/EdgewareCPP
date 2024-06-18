@@ -2,7 +2,7 @@
 
 #include <string>
 #include <map>
-#include <Debug.h>
+#include "Debug.hpp"
 
 enum Setting
 {
@@ -18,7 +18,6 @@ enum Setting
 	MinYButtonHeight,
 	MaxYButtonHeight,
 	Multiplicator,
-	EnableBurst,
 	BurstAmt,
 	PopupFadeOut,
 	PopupFadeOutSteps,
@@ -41,7 +40,6 @@ struct Settings
 	int MinYButtonHeight;
 	int MaxYButtonHeight;
 	int Multiplicator;
-	int EnableBurst;
 	int BurstAmt;
 	bool PopupFadeOut;
 	double PopupFadeOutSteps;
@@ -52,5 +50,6 @@ struct Settings
 };
 
 Settings*	ReadSettings();
-Setting		OwOWhatSettingDis(const std::string line);
+Setting		OwOWhatSettingDis(const std::string line, const std::map<std::string, Setting> lineToEnumMap);
 void		assign(std::string line, Setting sett, Settings *settingStruct);
+void		setStandardSettingsFile(Settings* sett);

@@ -1,35 +1,40 @@
-#include "SettGui.h"
+#include "SettGui.hpp"
 #include <algorithm>
 #include <fstream>
 #include <iostream>
-#include "PopupSettings.h"
-#include "GeneralSettings.h"
+#include "PopupSettings.hpp"
+#include "GeneralSettings.hpp"
 
-SettGui::SettGui() : W(min(900,Fl::w())), H(min(800,Fl::h())) {
+SettGui::SettGui() : W(std::min(900,Fl::w())), H(std::min(800,Fl::h())) {
+	CreateLogFile();
+	this->SettingsFileContent = ReadSettings();
 	this->Gui = new Fl_Window(0,0, W, H, "Settings");
 	this->saveButton = new Fl_Button(0,H-20,W,20,"Save");
 	this->saveButton->callback(saveAndClose, this);
 	this->BuildMenueSelectorPanel(this->SelectorPanelButtonNames);
-	this->GenSett = new GeneralSettings(2, 2 + SelectorButtonH, W - 4, H - SelectorButtonH - 24);
+	this->GenSett = new GeneralSettings(2, 2 + SelectorButtonH, W - 4, H - SelectorButtonH - 24, this->SettingsFileContent);
 	Gui->add(GenSett);
-	this->PopSett = new PopupSettings(2, 2 + SelectorButtonH, W - 4, H - SelectorButtonH - 24);
+	this->PopSett = new PopupSettings(2, 2 + SelectorButtonH, W - 4, H - SelectorButtonH - 24, this->SettingsFileContent);
 	Gui->add(PopSett);
-	this->AdvSett = new AdvancedSettings(2, 2 + SelectorButtonH, W - 4, H - SelectorButtonH - 24);
+	this->AdvSett = new AdvancedSettings(2, 2 + SelectorButtonH, W - 4, H - SelectorButtonH - 24, this->SettingsFileContent);
 	Gui->add(AdvSett);
 	Gui->show();
 	Gui->callback(saveAndClose,this);
 }
 
+
 void SettGui::update(int CurrentlyOpenPageNum)
 {
+	delete (this->SettingsFileContent);
+	this->SettingsFileContent = ReadSettings();
 	delete(this->GenSett);
-	this->GenSett = new GeneralSettings(2, 2 + SelectorButtonH, W - 4, H - SelectorButtonH - 24);
+	this->GenSett = new GeneralSettings(2, 2 + SelectorButtonH, W - 4, H - SelectorButtonH - 24, this->SettingsFileContent);
 	Gui->add(GenSett);
 	delete(this->PopSett);
-	this->PopSett = new PopupSettings(2, 2 + SelectorButtonH, W - 4, H - SelectorButtonH - 24);
+	this->PopSett = new PopupSettings(2, 2 + SelectorButtonH, W - 4, H - SelectorButtonH - 24, this->SettingsFileContent);
 	Gui->add(PopSett);
 	delete(this->AdvSett);
-	this->AdvSett = new AdvancedSettings(2, 2 + SelectorButtonH, W - 4, H - SelectorButtonH - 24);
+	this->AdvSett = new AdvancedSettings(2, 2 + SelectorButtonH, W - 4, H - SelectorButtonH - 24, this->SettingsFileContent);
 	Gui->add(AdvSett);
 	this->GenSett->show();
 	if (CurrentlyOpenPageNum >= 0) {
@@ -194,14 +199,15 @@ int SettGui::getBurstAmt() {
 	return(this->PopSett->BurstAmountSlider->value());
 }
 
+
 void saveAndClose(Fl_Widget* win, void* Src) {
 	SettGui* Gui = static_cast<SettGui*>(Src);
-	std::ofstream Settings("../../shared/Settings.txt");
+	std::ofstream Settings("shared/Settings.txt");
 	if (Settings.is_open() == false) {
 		std::cout << "error could not open Settings File" << std::endl;
 	}
-	Settings << "ButtonX=" << min(Gui->getButtonX(), Gui->getMaxXButtonHeight()) << std::endl;
-	Settings << "ButtonY=" << min(Gui->getButtonY(), Gui->getMaxYButtonHeight()) << std::endl;
+	Settings << "ButtonX=" << std::min(Gui->getButtonX(), Gui->getMaxXButtonHeight()) << std::endl;
+	Settings << "ButtonY=" << std::min(Gui->getButtonY(), Gui->getMaxYButtonHeight()) << std::endl;
 	Settings << "ButtonText=" << Gui->getButtonText() << std::endl;
 	Settings << "PopupLifespan=" << Gui->getPopupLifespan() << std::endl;
 	Settings << "ImageFolderPath=" << Gui->getImageFolderPath() << std::endl;
@@ -225,4 +231,17 @@ void saveAndClose(Fl_Widget* win, void* Src) {
 	else {
 		Gui->update(Gui->GetCurrentlyOpenPage());
 	}
+}
+
+SettGui::~SettGui()
+{
+	delete (this->PopSett);
+	delete (this->GenSett);
+	delete (this->AdvSett);
+	delete (this->SettingsFileContent);
+	while (this->SelectorPanelButtons.empty() == false) {
+		delete(this->SelectorPanelButtons[0]);
+		this->SelectorPanelButtons.erase(this->SelectorPanelButtons.begin());
+	}
+	this->SelectorPanelButtons.clear();
 }

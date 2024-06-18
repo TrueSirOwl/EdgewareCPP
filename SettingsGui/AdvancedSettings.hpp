@@ -3,7 +3,7 @@
 #include <FL/Fl_Value_Input.H>
 #include <FL/Fl_Hor_Slider.H>
 #include <FL/Fl_Text_Display.H>
-#include "Settings.h"
+#include "../shared/Settings.hpp"
 
 class AdvancedSettings : public Fl_Window
 {
@@ -30,6 +30,7 @@ public:
 
 	static void SetLoggingStrenght(Fl_Widget* w, void* data);
 
-	AdvancedSettings(int x, int y, int w, int h);
+	AdvancedSettings(int x, int y, int w, int h, Settings* sett);
+	~AdvancedSettings();
 };
 

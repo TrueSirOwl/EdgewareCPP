@@ -7,7 +7,7 @@
 #include <FL/Fl_Hor_Value_Slider.H>
 #include <FL/Fl_Hor_Slider.H>
 #include <FL/Fl_Check_Button.H>
-#include "Settings.h"
+#include "../shared/Settings.hpp"
 #include <string>
 #include <algorithm>
 
@@ -56,7 +56,6 @@ public:
 	//------------------------------------------------
 	int Burstx, Bursty;
 
-	Fl_Check_Button* EnableBurst;
 	Fl_Hor_Slider* BurstAmountSlider;
 	Fl_Value_Input* BurstAmountInput;
 
@@ -78,6 +77,7 @@ public:
 	static void SetBurstAmountSlider(Fl_Widget* w, void* data);
 	static void SetBurstAmountInput(Fl_Widget* w, void* data);
 
-	PopupSettings(int x, int y, int w, int h);
+	PopupSettings(int x, int y, int w, int h, Settings* sett);
+	~PopupSettings();
 };
 

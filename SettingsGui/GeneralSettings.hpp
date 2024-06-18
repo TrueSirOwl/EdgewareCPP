@@ -3,16 +3,19 @@
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Value_Input.H>
 #include <FL/Fl_Value_Slider.H>
-#include "Settings.h"
+#include <Fl/Fl_Input.H>
+#include "../shared/Settings.hpp"
 #include <string>
 
 class GeneralSettings : public Fl_Window
 {
 private:
 
+	Settings* SettingsFileContent;
+
 public:
 
-	GeneralSettings(int x, int y, int w, int h);
+	GeneralSettings(int x, int y, int w, int h, Settings* sett);
 
 };
 
