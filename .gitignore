@@ -409,3 +409,7 @@ Frameworks/
 Resource.h
 targetver.h
 framework.h
+
+#-------------------------
+*.o
+*/*.o
