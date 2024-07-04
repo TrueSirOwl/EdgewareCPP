@@ -2,13 +2,16 @@
 #include <algorithm>
 #include <ctime>
 #include <chrono>
+#include <filesystem>
 
 std::ofstream Log;
 
 void CreateLogFile() {
+	std::filesystem::create_directory("logs");
+
 	auto runt = std::chrono::system_clock::now();
 	std::time_t runTime = std::chrono::system_clock::to_time_t(runt);
-	std::string time = "L:/CPP_learning_stuff/Logs/Log_";
+	std::string time = "logs/Log_";
 	time.append(std::ctime(&runTime));
 	time.erase(time.find("\n"));
 	time.append(".hornylog");
