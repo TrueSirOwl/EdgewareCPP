@@ -7,6 +7,7 @@
 #include <ctime>
 #include <sys/timeb.h>
 #include <thread>
+#include <mutex>
 #include "../shared/Settings.hpp"
 //#include "../shared/Debug.h"
 
@@ -25,7 +26,11 @@ private:
 	SDL_Renderer* PopupRenderer;
 	SDL_Window* window;
 	SDL_Texture* imageTexture;
-	
+	SDL_Surface* imageSurface;
+
+
+	std::thread loader;
+
 	int imageW;
 	int imageH;
 
@@ -65,12 +70,14 @@ private:
 
 public:
 	long long lifetime;
+
+	std::mutex CheckDeath;
 	bool death;
 
-	ContentType getContentType();
 	Popup(ImageStorage& src, const Settings popsett);
 
 	void PopUp();
+	Popup(SDL_Surface image ,const Settings popsett);
 
 	~Popup();
 

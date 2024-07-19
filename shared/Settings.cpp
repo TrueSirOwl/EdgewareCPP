@@ -25,6 +25,8 @@ Settings *ReadSettings() {
 		{"PopupOpacity", Setting::PopupOpacity},
 		{"PopupOverlay", Setting::Overlay},
 		{"LoggingStrength", Setting::LoggingStrength},
+		{"ImageSizeMax",Setting::ImageSizeMax},
+		{"ImageSizeMin", Setting::ImageSizeMin}
 	};
 	int settingsDone = 0;
 
@@ -124,11 +126,19 @@ void assign(std::string line, Setting sett, Settings* SettingsStruct) {
 		break;
 
 	case Setting::Overlay:
-		SettingsStruct->Overlay = std::stod(line.substr(line.find('=') + 1, line.length()));
+		SettingsStruct->Overlay = std::stoi(line.substr(line.find('=') + 1, line.length()));
 		break;
 
 	case Setting::LoggingStrength:
 		SettingsStruct->LoggingStrenght = std::stoi(line.substr(line.find('=') + 1, line.length()));
+		break;
+
+	case Setting::ImageSizeMin:
+		SettingsStruct->ImageSizeMin = std::stod(line.substr(line.find('=') + 1, line.length()));
+		break;
+
+	case Setting::ImageSizeMax:
+		SettingsStruct->ImageSizeMax = std::stod(line.substr(line.find('=') + 1, line.length()));
 		break;
 
 	default:
@@ -155,6 +165,8 @@ void setStandardSettingsFile(Settings* sett) {
 	sett->PopupLifespan = 10000;
 	sett->PopupOpacity = 0.50;
 	sett->TimeBetweenPopups = 10000;
+	sett->ImageSizeMin = 0.7;
+	sett->ImageSizeMax = 1;
 
 // 	std::ofstream Settings("shared/Settings.txt");
 // 	if (Settings.is_open() == false) {

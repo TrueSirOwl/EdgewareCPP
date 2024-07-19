@@ -89,6 +89,9 @@ public:
 	int getPopupOverlay();
 	int getLoggingStrength();
 	int getBurstAmt();
+	double getImageSizeMin();
+	double getImageSizeMax();
+
 };
 
 void saveAndClose(Fl_Widget* Gui, void* Src);

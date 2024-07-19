@@ -7,11 +7,12 @@ class Burster
 {
 private:
 	std::vector<Popup*> burstBuffer;
-	ImageStorage IMGLib;
+	ImageStorage* IMGLib;
 
 public:
-	Burster(Settings sett, ImageStorage& src);
+	Burster(Settings sett, ImageStorage* src);
 	void burst();
+	bool checkBurstDone();
 	~Burster();
 };
 

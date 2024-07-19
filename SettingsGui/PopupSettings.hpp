@@ -58,6 +58,14 @@ public:
 
 	Fl_Hor_Slider* BurstAmountSlider;
 	Fl_Value_Input* BurstAmountInput;
+	//------------------------------------------------
+	int ImageScalex, ImageScaley, ImageScalew, ImageScaleh;
+
+	Fl_Hor_Slider* ImageScaleMaxSlider;
+	Fl_Value_Input* ImageScaleMaxInput;
+	Fl_Hor_Slider* ImageScaleMinSlider;
+	Fl_Value_Input* ImageScaleMinInput;
+	//------------------------------------------------
 
 	static void ResizeButtonTextField(Fl_Widget* w, void* data);
 	static void SetTimeBeteenPopups(Fl_Widget* w, void* data);
@@ -76,6 +84,11 @@ public:
 	static void SetBurstModeActivity(Fl_Widget* w, void* data);
 	static void SetBurstAmountSlider(Fl_Widget* w, void* data);
 	static void SetBurstAmountInput(Fl_Widget* w, void* data);
+	static void SetImageScaleMaxInput(Fl_Widget* w, void* data);
+	static void SetImageScaleMaxSlider(Fl_Widget* w, void* data);
+	static void SetImageScaleMinInput(Fl_Widget* w, void* data);
+	static void SetImageScaleMinSlider(Fl_Widget* w, void* data);
+
 
 	PopupSettings(int x, int y, int w, int h, Settings* sett);
 	~PopupSettings();

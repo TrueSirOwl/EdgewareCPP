@@ -199,6 +199,14 @@ int SettGui::getBurstAmt() {
 	return(this->PopSett->BurstAmountSlider->value());
 }
 
+double SettGui::getImageSizeMin() {
+	return(this->PopSett->ImageScaleMinSlider->value());
+}
+
+double SettGui::getImageSizeMax() {
+	return(this->PopSett->ImageScaleMaxSlider->value());
+
+}
 
 void saveAndClose(Fl_Widget* win, void* Src) {
 	SettGui* Gui = static_cast<SettGui*>(Src);
@@ -224,6 +232,8 @@ void saveAndClose(Fl_Widget* win, void* Src) {
 	Settings << "PopupOpacity=" << Gui->getPopupOpacity() << std::endl;
 	Settings << "PopupOverlay=" << Gui->getPopupOverlay() << std::endl;
 	Settings << "LoggingStrength=" << Gui->getLoggingStrength() << std::endl;
+	Settings << "ImageSizeMin=" << Gui->getImageSizeMin() << std::endl;
+	Settings << "ImageSizeMax=" << Gui->getImageSizeMax() << std::endl;
 	//Settings << "" << Gui << std::endl;
 	if (Fl::event() == FL_CLOSE) {
 		win->hide();

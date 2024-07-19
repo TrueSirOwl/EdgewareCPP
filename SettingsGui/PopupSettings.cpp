@@ -192,9 +192,39 @@ PopupSettings::PopupSettings(int x, int y, int w, int h, Settings* sett) : Fl_Do
 	this->MultiplicatiorInput = new Fl_Value_Input(Multiplicatorx, Multiplicatory, 50, 20, "Multiplication");
 	this->MultiplicatiorInput->value(this->SettingsFileContent->Multiplicator);
 	this->MultiplicatiorInput->tooltip("Determines how many Popus will be created when closing a Popup");
+//------------------------------------------------
+	ImageScalex = 150;
+	ImageScaley = 400;
+	ImageScalew = 0;
+	ImageScaleh = 0;;
+
+	this->ImageScaleMaxSlider = new Fl_Hor_Slider(ImageScalex, ImageScaley,220,20,"ImageScaleMax");
+	this->ImageScaleMaxSlider->value(this->SettingsFileContent->ImageSizeMax);
+	this->ImageScaleMaxSlider->align(FL_ALIGN_LEFT);
+	this->ImageScaleMaxSlider->maximum(1);
+	this->ImageScaleMaxSlider->minimum(0);
+	this->ImageScaleMaxSlider->step(0.01);
+	this->ImageScaleMaxSlider->tooltip("Sets the Max size of the Popups in relation to actual image size, limited by screen size");
+	this->ImageScaleMaxSlider->callback(SetImageScaleMaxInput,this);
+	this->ImageScaleMaxInput = new Fl_Value_Input(ImageScalex + 220, ImageScaley, 50, 20);
+	this->ImageScaleMaxInput->value(this->SettingsFileContent->ImageSizeMax);
+	this->ImageScaleMaxInput->callback(SetImageScaleMaxSlider, this);
+
+	this->ImageScaleMinSlider = new Fl_Hor_Slider(ImageScalex, ImageScaley+20,220,20,"ImageScaleMin");
+	this->ImageScaleMinSlider->value(this->SettingsFileContent->ImageSizeMin);
+	this->ImageScaleMinSlider->align(FL_ALIGN_LEFT);
+	this->ImageScaleMinSlider->maximum(1);
+	this->ImageScaleMinSlider->minimum(0);
+	this->ImageScaleMinSlider->step(0.01);
+	this->ImageScaleMinSlider->tooltip("Sets the Min size of the Popups in relation to actual image size");
+	this->ImageScaleMinSlider->callback(SetImageScaleMinInput,this);
+	this->ImageScaleMinInput = new Fl_Value_Input(ImageScalex + 220, ImageScaley+20, 50, 20);
+	this->ImageScaleMinInput->value(this->SettingsFileContent->ImageSizeMin);
+	this->ImageScaleMinInput->callback(SetImageScaleMinSlider, this);
 
 	hide();
 }
+
 
 void PopupSettings::ResizeButtonTextField(Fl_Widget* w, void* data) {
 	PopupSettings* Gui = static_cast<PopupSettings*>(data);
@@ -348,6 +378,26 @@ void PopupSettings::SetBurstAmountInput(Fl_Widget* w, void* data) {
 	Gui->BurstAmountInput->value(Gui->BurstAmountSlider->value());
 }
 
+void PopupSettings::SetImageScaleMaxInput(Fl_Widget* w, void* data) {
+	PopupSettings* Gui = static_cast<PopupSettings*>(data);
+	Gui->ImageScaleMaxInput->value(Gui->ImageScaleMaxSlider->value());
+}
+
+void PopupSettings::SetImageScaleMaxSlider(Fl_Widget* w, void* data) {
+	PopupSettings* Gui = static_cast<PopupSettings*>(data);
+	Gui->ImageScaleMaxSlider->value(Gui->ImageScaleMaxInput->value());
+}
+
+void PopupSettings::SetImageScaleMinInput(Fl_Widget* w, void* data) {
+	PopupSettings* Gui = static_cast<PopupSettings*>(data);
+	Gui->ImageScaleMinInput->value(Gui->ImageScaleMinSlider->value());
+}
+
+void PopupSettings::SetImageScaleMinSlider(Fl_Widget* w, void* data) {
+	PopupSettings* Gui = static_cast<PopupSettings*>(data);
+	Gui->ImageScaleMinSlider->value();
+}
+
 PopupSettings::~PopupSettings() {
 	delete (this->ButtonXinput);
 	delete (this->ButtonYinput);
@@ -370,4 +420,8 @@ PopupSettings::~PopupSettings() {
 	delete (this->ImageFolderPath);
 	delete (this->BurstAmountInput);
 	delete (this->BurstAmountSlider);
+	delete (this->ImageScaleMaxInput);
+	delete (this->ImageScaleMaxSlider);
+	delete (this->ImageScaleMinInput);
+	delete (this->ImageScaleMinSlider);
 }

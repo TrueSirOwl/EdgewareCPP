@@ -25,6 +25,8 @@ enum Setting
 	PopupOpacity,
 	LoggingStrength,
 	Overlay,
+	ImageSizeMin,
+	ImageSizeMax
 };
 
 
@@ -47,6 +49,8 @@ struct Settings
 	double PopupOpacity;
 	int LoggingStrenght;
 	int Overlay;
+	double ImageSizeMin;
+	double ImageSizeMax;
 };
 
 Settings*	ReadSettings();
