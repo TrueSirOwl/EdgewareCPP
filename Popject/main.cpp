@@ -17,6 +17,20 @@
 #include <cstring>
 #include <queue>
 
+#ifdef _WIN32
+#include <windows.h>
+
+extern int main(int argc, char* argv[]);
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+    // Convert Windows command line arguments to C-style command line arguments
+    int argc = __argc;
+    char** argv = __argv;
+
+    // Call the standard main function
+    return main(argc, argv);
+}
+#endif
 //void playGif(IMG_Animation* Gif, SDL_Renderer* renderer, SDL_Texture* texture, SDL_Surface* screen, SDL_Window* window);
 
 void cleanup(std::vector<Popup*> Popups) {

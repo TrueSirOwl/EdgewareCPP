@@ -16,5 +16,5 @@ PopupFadeOutTime=1000
 PopupOpacity=0.5
 PopupOverlay=1
 LoggingStrength=0
-ImageSizeMin=0.7
-ImageSizeMax=1
+ImageSizeMin=0.2
+ImageSizeMax=0.5

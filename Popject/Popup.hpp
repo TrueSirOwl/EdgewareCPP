@@ -7,8 +7,9 @@
 #include <ctime>
 #include <sys/timeb.h>
 #include <thread>
-#include <mutex>
 #include "../shared/Settings.hpp"
+#include <thread>
+#include <mutex>
 //#include "../shared/Debug.h"
 
 enum ContentType
