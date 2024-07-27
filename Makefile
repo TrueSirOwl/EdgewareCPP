@@ -2,7 +2,7 @@ CC = g++
 WCC = x86_64-w64-mingw32-g++-posix
 CFLAGS = -g3 -std=c++17
 
-WINFLAGS = -mconsole
+WINFLAGS = -mconsole -lsetupapi -lole32 -loleaut32 -lgdi32 -limm32 -lversion -lwinmm -static
 
 PopSRC = Popject/Burster.cpp Popject/ImageStorage.cpp Popject/Popup.cpp Popject/main.cpp
 SettSRC = SettingsGui/AdvancedSettings.cpp SettingsGui/GeneralSettings.cpp SettingsGui/PopupSettings.cpp SettingsGui/SettGui.cpp SettingsGui/Main.cpp
