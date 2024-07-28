@@ -69,8 +69,6 @@ int main(int argc, char* argv[]) {
 	bool run = true;
 	std::vector<Popup*> Popups;
 
-	std::thread popupPrepper;
-
 	if (test == 2) {
 		std::queue<Burster> buff;
 		std::vector<Burster> trash;
@@ -87,7 +85,7 @@ int main(int argc, char* argv[]) {
 				buff.pop();
 				if (trash.begin()->checkBurstDone() == true) {
 					std::cout << "deleting previous BurstBffer" << std::endl;
-					trash.begin()->~Burster();
+					trash.erase(trash.begin());
 				}
 				std::cout << "---------------------" << std::endl;
 			}

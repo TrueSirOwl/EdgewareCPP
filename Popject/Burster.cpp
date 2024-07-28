@@ -32,7 +32,3 @@ bool Burster::checkBurstDone() {
 	}
 	return(false);
 }
-
-Burster::~Burster() {
-	burstBuffer.clear();
-}

@@ -44,6 +44,7 @@ void Popup::getImage() {
 
 	if (this->ContentPath.substr(this->ContentPath.find_last_of('.') + 1) == "gif") {
 		this->Gif = IMG_LoadAnimation(this->ContentPath.c_str());
+		this->last_image = 0;
 		this->Content = GIF;
 	}
 	this->imageSurface = IMG_Load(this->ContentPath.c_str());
@@ -95,7 +96,6 @@ void Popup::PopUp() {
 	{
 		std::cerr << e.what() << std::endl;
 	}
-	std::cout << "test" << std::endl;
 	scaleImage();
 	placer();
 	SDL_SetWindowOpacity(this->window, this->sett.PopupOpacity);
@@ -188,6 +188,9 @@ void Popup::renderGif() {
 }
 
 void Popup::renderImage() {
+	if (this->imageTexture != NULL) {
+		SDL_DestroyTexture(this->imageTexture);
+	}
 	this->imageTexture = SDL_CreateTextureFromSurface(this->PopupRenderer,this->imageSurface);
 	SDL_FreeSurface(this->imageSurface);
 	SDL_RenderCopy(this->PopupRenderer, this->imageTexture, NULL, NULL);
@@ -284,7 +287,7 @@ Popup::~Popup() {
 
 			// Set the window to be transparent
 			Atom opacity = XInternAtom(display, "_NET_WM_WINDOW_OPACITY", False);
-			unsigned long value = (unsigned long)(0.0 * 0xFFFFFFFF); // Fully transparent
+			unsigned long value = (unsigned long)(this->sett.PopupOpacity * 0xFFFFFFFF); // Fully transparent
 			XChangeProperty(display, xwindow, opacity, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)&value, 1);
 
 			// Set the window to allow mouse clicks to pass through

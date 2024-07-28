@@ -9,7 +9,7 @@ SettSRC = SettingsGui/AdvancedSettings.cpp SettingsGui/GeneralSettings.cpp Setti
 SharedSRC = shared/Debug.cpp shared/Settings.cpp
 
 Winclude = -I/usr/x86_64-w64-mingw32/include -I/usr/x86_64-w64-mingw32/include/SDL2
-SDL_WINLIBS = -lSDL2_image
+SDL_WINLIBS = -lSDL2_image -lSDL2
 
 SDL_CFLAGS = $(shell sdl2-config --cflags)
 SDL_LDFLAGS = $(shell sdl2-config --libs)
@@ -53,7 +53,7 @@ shared/%.g++.o: shared/%.cpp
 
 
 winpopject: $(winPopOBJ) $(winSharedOBJ)
-	$(WCC) $(winPopOBJ) $(winSharedOBJ) $(SDL_LDFLAGS) $(SDL_WINLIBS) -o $(WINPOPJECT) $(WINFLAGS) 
+	$(WCC) $(winPopOBJ) $(winSharedOBJ) $(SDL_WINLIBS) -o $(WINPOPJECT) $(WINFLAGS) 
 
 winsettings: $(winSettOBJ) $(winSharedOBJ)
 	$(WCC) $(winSettOBJ) $(winSharedOBJ) -o $(WINSETTING) $(FLTK_LIBS) $(WINFLAGS)

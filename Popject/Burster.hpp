@@ -13,6 +13,5 @@ public:
 	Burster(Settings sett, ImageStorage* src);
 	void burst();
 	bool checkBurstDone();
-	~Burster();
 };
 
