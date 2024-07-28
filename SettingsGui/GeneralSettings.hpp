@@ -3,7 +3,7 @@
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Value_Input.H>
 #include <FL/Fl_Value_Slider.H>
-#include <Fl/Fl_Input.H>
+#include <FL/Fl_Input.H>
 #include "../shared/Settings.hpp"
 #include <string>
 
