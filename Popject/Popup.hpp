@@ -56,11 +56,11 @@ private:
 
 
 	void getImage();
-	void scaleImage();
+	void scaleWindow();
 	void getDisplays();
 	void renderImage();
 	void renderGif();
-	void placer();
+	void placeWindow();
 	void ImageThread();
 	void GIFThread();
 	void infinityGIFThread();

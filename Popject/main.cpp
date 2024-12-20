@@ -43,6 +43,7 @@ void cleanup(std::vector<Popup*> Popups) {
 
 int main(int argc, char* argv[]) {
 	SDL_Init(SDL_INIT_VIDEO);
+	IMG_Init(IMG_INIT_PNG);
 
 	Settings* Sett = ReadSettings();
 	std::cout << sizeof(*Sett) << std::endl;
@@ -67,7 +68,107 @@ int main(int argc, char* argv[]) {
 	int test = 2;
 	int c = 0;
 	bool run = true;
-	std::vector<Popup*> Popups;
+
+	if (test == 1) {
+
+		std::cout << "creating window" << std::endl;
+
+		SDL_Window* window = SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_SKIP_TASKBAR);
+		if (window == NULL) {
+			LOG(HERROR, 0, "Window Creation Failed. AbortingPopup");
+			return(1);
+		}
+
+		//clickthrough deleted
+
+		std::cout << "creating renderer" << std::endl;
+
+
+		SDL_Renderer* PopupRenderer = SDL_CreateRenderer(window, -1 ,SDL_RENDERER_ACCELERATED);
+		if (PopupRenderer == NULL) {
+			LOG(HERROR, 0, "Renderer Creation Failed. AbortingPopup");
+		}
+
+		std::string ContentPath = IMGLib.getRandomImage();
+		std::cout << ContentPath << std::endl;
+
+		if (ContentPath.substr(ContentPath.find_last_of('.') + 1) == "gif") {
+			IMG_Animation* Gif = IMG_LoadAnimation(ContentPath.c_str());
+			int last_image = 0;
+			ContentType Content = GIF;
+		}
+
+		std::cout << "loading image" << std::endl;
+
+
+		SDL_Surface* imageSurface = IMG_Load(ContentPath.c_str());
+
+
+
+		if (imageSurface == NULL) {
+			LOG(WARNING, 0, "Loading " + ContentPath + " Failed: " + (std::string)SDL_GetError());
+			exit(1);
+		}
+
+
+
+		double sourceSize, targetSize;
+
+		std::random_device rd;
+		std::default_random_engine randomizerEngine(rd());
+		std::uniform_real_distribution<double> scaleFactor(1, 1);
+		sourceSize = 1 + (std::max<int>(imageSurface->w, imageSurface->h) / std::min<int>(1920, 1080));
+		//sourceSize = 1 + (std::max<int>(this->imageSurface->w, this->imageSurface->h) / std::min<int>(1920, 1080));
+
+		targetSize = scaleFactor(randomizerEngine);
+		int resizeFactor = targetSize / sourceSize;
+		int targetw = static_cast<int>(imageSurface->w * resizeFactor);
+		int targeth = static_cast<int>(imageSurface->h * resizeFactor);
+
+		SDL_SetWindowSize(window, targetw, targeth);
+
+		std::cout << "resizing to: " << targetw << " " << targeth << std::endl;
+
+
+
+		std::random_device rud;
+		std::default_random_engine randomizerEngineu(rud());
+		std::uniform_int_distribution<int> WhereH(0, 1080- targeth);
+		std::uniform_int_distribution<int> WhereW(0, 1920- targetw);
+		//std::uniform_int_distribution<int> WhereH(0, 1080 - this->target.h);
+		//std::uniform_int_distribution<int> WhereW(0, 1920 - this->target.w);
+		int ImageLocX = WhereW(randomizerEngineu);
+		int ImageLocY = WhereH(randomizerEngineu);
+		SDL_SetWindowPosition(window, ImageLocX, ImageLocY);
+
+		std::cout << "placing at: " << ImageLocX << " " << ImageLocY << std::endl;
+
+
+		SDL_SetWindowOpacity(window, 0.5);
+		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
+		std::cout << "creating texture" << std::endl;
+
+		SDL_Texture* imageTexture = SDL_CreateTextureFromSurface(PopupRenderer,imageSurface);
+		if (imageTexture == NULL) {
+			LOG(HERROR, 0 ,SDL_GetError());
+			SDL_ClearError();
+		}
+		int renderError = SDL_RenderClear(PopupRenderer);
+		if (renderError != 0) {
+			LOG(HERROR, 0 ,SDL_GetError());
+			SDL_ClearError();
+		}
+		std::cout << "rendering" << std::endl;
+		SDL_RenderCopy(PopupRenderer, imageTexture, NULL, NULL);
+		SDL_RenderPresent(PopupRenderer);
+
+		timeb start;
+		ftime(&start);
+		ftime(&now);
+		while ((now.time * 1000 + now.millitm) - (start.time * 1000 + lastPop.millitm) < 10000) {
+			ftime(&now);
+		}
+	}
 
 	if (test == 2) {
 		std::queue<Burster> buff;
