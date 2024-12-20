@@ -17,14 +17,19 @@ void CreateLogFile() {
 	time.append(".hornylog");
 	std::replace(time.begin(), time.end(), ' ', '_');
 	std::replace(time.begin() + 2, time.end(), ':', '_');
-	std::ofstream Log(time.c_str());
+	Log = std::ofstream(time.c_str());
 }
 
+	#include <iostream>
+
 void LOG(HornySeverity s, int strength, std::string message) {
+	std::cout << "logging func called with: " << message << std::endl;
 	switch (s) {
 	case INFO:
 		if (strength <= INFO) {
 			Log << "INFO: " << message << std::endl;
+			std::cout << "INFO: " << message << std::endl;
+			Log.flush();
 		}
 		break;
 	case WARNING:
