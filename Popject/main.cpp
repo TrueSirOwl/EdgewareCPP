@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
 
 	bool measuretime = false;
 
-	int test = 2;
+	int test = 1;
 	int c = 0;
 	bool run = true;
 
@@ -121,10 +121,12 @@ int main(int argc, char* argv[]) {
 		std::default_random_engine randomizerEngine(rd());
 		std::uniform_real_distribution<double> scaleFactor(1, 1);
 		sourceSize = 1 + (std::max<int>(imageSurface->w, imageSurface->h) / std::min<int>(1920, 1080));
+		std::cout << "original size: " << imageSurface->w << " " << imageSurface->h << std::endl;
 		//sourceSize = 1 + (std::max<int>(this->imageSurface->w, this->imageSurface->h) / std::min<int>(1920, 1080));
 
 		targetSize = scaleFactor(randomizerEngine);
-		int resizeFactor = targetSize / sourceSize;
+		float resizeFactor = targetSize / sourceSize;
+		std::cout << "TargetSizte: " << targetSize << " SourceSize: " << sourceSize << std::endl;
 		int targetw = static_cast<int>(imageSurface->w * resizeFactor);
 		int targeth = static_cast<int>(imageSurface->h * resizeFactor);
 
