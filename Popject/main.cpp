@@ -16,6 +16,8 @@
 #include <cerrno>
 #include <cstring>
 #include <queue>
+#include <signal.h>
+
 
 #ifdef _WIN32
 #include <windows.h>
@@ -45,6 +47,7 @@ int main(int argc, char* argv[]) {
 	SDL_Init(SDL_INIT_VIDEO);
 	IMG_Init(IMG_INIT_PNG);
 
+	signal(SIGINT, SIG_DFL);
 	Settings* Sett = ReadSettings();
 	std::cout << sizeof(*Sett) << std::endl;
 	CreateLogFile();

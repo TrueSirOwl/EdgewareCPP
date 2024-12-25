@@ -413,3 +413,5 @@ framework.h
 #-------------------------
 *.o
 */*.o
+popject
+settings
