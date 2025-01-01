@@ -13,10 +13,6 @@ Current_image(0), imageSurface(NULL), imageTexture(NULL), Gif(NULL), Content(IMA
 		LOG(HERROR, this->sett.LoggingStrenght, "Window Creation Failed. AbortingPopup");
 		delete (this);
 	}
-
-	if (this->sett.Overlay == 1) {
-		SetWindowClickThrough();
-	}
 	
 	this->PopupRenderer = SDL_CreateRenderer(this->window, -1 ,SDL_RENDERER_ACCELERATED);
 	if (this->PopupRenderer == NULL) {
@@ -102,6 +98,10 @@ void Popup::PopUp() {
 	SDL_SetWindowOpacity(this->window, this->sett.PopupOpacity);
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
 	
+	if (this->sett.Overlay == 1) {
+		SetWindowClickThrough();
+	}
+
 	std::thread run;
 
 	switch (this->Content) {
@@ -298,16 +298,6 @@ Popup::~Popup() {
 			LOG(INFO, this->sett.LoggingStrenght, "Activting Clickthrough for Linux");
 			Display* display = wmInfo.info.x11.display;
 			Window xwindow = wmInfo.info.x11.window;
-
-			// Set the window to be transparent
-			Atom opacity = XInternAtom(display, "_NET_WM_WINDOW_OPACITY", False);
-			unsigned long value = (unsigned long)(this->sett.PopupOpacity * 0xFFFFFFFF); // Fully transparent
-			XChangeProperty(display, xwindow, opacity, XA_CARDINAL, 32, PropModeReplace, (unsigned char*)&value, 1);
-
-			// Set the window to allow mouse clicks to pass through
-			XSetWindowAttributes attrs;
-			attrs.override_redirect = True;
-			XChangeWindowAttributes(display, xwindow, CWOverrideRedirect, &attrs);
 
 			XRectangle rect;
 			XserverRegion region = XFixesCreateRegion(display, &rect, 1);

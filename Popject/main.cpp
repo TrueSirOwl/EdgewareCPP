@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
 
 	bool measuretime = false;
 
-	int test = 1;
+	int test = 2;
 	int c = 0;
 	bool run = true;
 
@@ -148,7 +148,7 @@ int main(int argc, char* argv[]) {
 
 		std::cout << "placing at: " << ImageLocX << " " << ImageLocY << std::endl;
 
-
+		SDL_ClearError();
 		SDL_SetWindowOpacity(window, 0.5);
 		SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
 		std::cout << "creating texture" << std::endl;
@@ -158,6 +158,7 @@ int main(int argc, char* argv[]) {
 			LOG(HERROR, 0 ,SDL_GetError());
 			SDL_ClearError();
 		}
+		SDL_SetRenderDrawColor(PopupRenderer,200,0,0,0);
 		int renderError = SDL_RenderClear(PopupRenderer);
 		if (renderError != 0) {
 			LOG(HERROR, 0 ,SDL_GetError());
