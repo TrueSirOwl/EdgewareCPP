@@ -304,8 +304,7 @@ Popup::~Popup() {
 			XFixesSetWindowShapeRegion(display, xwindow, ShapeInput, 0, 0, region);
 			XFixesDestroyRegion(display, region);
 #endif
-		}
-		else {
+		} else {
 			LOG(HERROR, this->sett.LoggingStrenght, "SDL_GetWindowWMInfo Error : " + static_cast<std::string>(SDL_GetError()));
 		}
 	}
