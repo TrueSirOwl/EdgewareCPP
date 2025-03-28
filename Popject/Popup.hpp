@@ -30,6 +30,7 @@ private:
 	SDL_Surface* imageSurface;
 
 
+	SDL_Thread* sdl_loader;
 	std::thread loader;
 
 	int imageW;
@@ -54,7 +55,7 @@ private:
 	struct timeb birth;
 	bool born;
 
-
+	static int getImageT(void* data);
 	void getImage();
 	void scaleWindow();
 	void getDisplays();

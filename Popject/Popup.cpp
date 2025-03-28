@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <chrono>
 #include <SDL_syswm.h>
+#include <SDL_thread.h>
 
 Popup::Popup(ImageStorage& src, const Settings popsett): 
 sett(popsett), ImageLib(src), lifetime(sett.PopupLifespan), death(false), born(false),
@@ -22,7 +23,8 @@ Current_image(0), imageSurface(NULL), imageTexture(NULL), Gif(NULL), Content(IMA
 		this->CheckDeath.unlock();
 	}
 
-	this->loader = std::thread(&Popup::getImage,this);
+	sdl_loader = SDL_CreateThread(getImageT,"loader",this);
+	// this->loader = std::thread(&Popup::getImage,this);
 }
 
 void Popup::getDisplays() {
@@ -32,6 +34,11 @@ void Popup::getDisplays() {
 		SDL_GetDisplayBounds(i, &this->displaySizes.back());
 	}
 
+}
+
+int Popup::getImageT(void* data) {
+	Popup* dota = static_cast<Popup*>(data);
+	dota->getImage();
 }
 
 void Popup::getImage() {
@@ -83,16 +90,17 @@ void Popup::placeWindow() {
 }
 
 void Popup::PopUp() {
-	try
-	{
-		if (this->loader.joinable() == true) {
-			this->loader.join();
-		}
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << e.what() << std::endl;
-	}
+	SDL_WaitThread(this->sdl_loader,NULL);
+	// try
+	// {
+	// 	if (this->loader.joinable() == true) {
+	// 		this->loader.join();
+	// 	}
+	// }
+	// catch(const std::exception& e)
+	// {
+	// 	std::cerr << e.what() << std::endl;
+	// }
 	scaleWindow();
 	placeWindow();
 	SDL_SetWindowOpacity(this->window, this->sett.PopupOpacity);
@@ -282,7 +290,7 @@ Popup::~Popup() {
 
 			LOG(INFO,this->sett.LoggingStrenght,"Activting Clickthrough for Windows");
 			HWND hwnd = wmInfo.info.win.window;
-			SetWindowLong(hwnd, GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_TRANSPARENT);
+			SetWindowLong(hwnd, GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE);
 #endif
 
 #if defined(__APPLE__)
@@ -298,6 +306,13 @@ Popup::~Popup() {
 			LOG(INFO, this->sett.LoggingStrenght, "Activting Clickthrough for Linux");
 			Display* display = wmInfo.info.x11.display;
 			Window xwindow = wmInfo.info.x11.window;
+
+			XWMHints *hints = XAllocWMHints();
+			hints->flags = InputHint;
+			hints->input = False;  // Prevents window from taking focus
+
+			XSetWMHints(display, xwindow, hints);
+			XFree(hints);
 
 			XRectangle rect;
 			XserverRegion region = XFixesCreateRegion(display, &rect, 1);
