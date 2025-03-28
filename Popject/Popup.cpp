@@ -80,8 +80,8 @@ void Popup::scaleWindow() {
 void Popup::placeWindow() {
 	std::random_device rd;
 	std::default_random_engine randomizerEngine(rd());
-	std::uniform_int_distribution<int> WhereH(0, this->displaySizes[0].h - this->target.h);
-	std::uniform_int_distribution<int> WhereW(0, this->displaySizes[0].w - this->target.w);
+	std::uniform_int_distribution<int> WhereH(this->displaySizes[0].y, this->displaySizes[0].h + this->displaySizes[0].y - this->target.h);
+	std::uniform_int_distribution<int> WhereW(this->displaySizes[0].x, this->displaySizes[0].w + this->displaySizes[0].x - this->target.w);
 	//std::uniform_int_distribution<int> WhereH(0, 1080 - this->target.h);
 	//std::uniform_int_distribution<int> WhereW(0, 1920 - this->target.w);
 	this->ImageLocX = WhereW(randomizerEngine);
