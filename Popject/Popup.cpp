@@ -145,7 +145,9 @@ void Popup::GIFThread() {
 		ftime(&now);
 		renderGif();
 	}
-	GifFadeout();
+	if (this->sett.PopupFadeOut == true) {
+		GifFadeout();
+	}
 	this->CheckDeath.lock();
 	this->death = true;
 	this->CheckDeath.unlock();
@@ -169,6 +171,7 @@ void Popup::infinityGIFThread() {
 void Popup::ImageThread() {
 	renderImage();
 	SDL_FreeSurface(this->imageSurface);
+	this->imageSurface = NULL;
 	std::this_thread::sleep_for(std::chrono::milliseconds(this->lifetime));
 	//std::cout << "age kill" << std::endl;
 	if (this->sett.PopupFadeOut == true) {
@@ -189,6 +192,7 @@ void Popup::renderGif() {
 	if (((long long)now.time * 1000 + now.millitm) - this->last_image >= Gif->delays[this->Current_image]) {
 		if (this->imageTexture != NULL) {
 			SDL_DestroyTexture(this->imageTexture);
+			this->imageTexture = NULL;
 		}
 		this->imageTexture = SDL_CreateTextureFromSurface(this->PopupRenderer, Gif->frames[this->Current_image++]);
 		SDL_RenderCopy(this->PopupRenderer, this->imageTexture, NULL, NULL);
@@ -200,6 +204,7 @@ void Popup::renderGif() {
 void Popup::renderImage() {
 	if (this->imageTexture != NULL) {
 		SDL_DestroyTexture(this->imageTexture);
+		this->imageTexture = NULL;
 	}
 	if (imageSurface == NULL) {
 		std::cout << "surface is NULL" << std::endl;
@@ -264,9 +269,23 @@ Popup::~Popup() {
 	SDL_HideWindow(this->window);
 	if (this->PopupRenderer != NULL) {
 		SDL_DestroyRenderer(this->PopupRenderer);
+		this->PopupRenderer = NULL;
+	}
+	if (this->imageSurface != NULL) {
+		SDL_FreeSurface(this->imageSurface);
+		this->imageSurface = NULL;
+	}
+	if (this->imageTexture != NULL) {
+		SDL_DestroyTexture(this->imageTexture);
+		this->imageTexture = NULL;
+	}
+	if (this->Gif != NULL) {
+		IMG_FreeAnimation (this->Gif);
+		this->Gif = NULL;
 	}
 	if (this->window != NULL) {
 		SDL_DestroyWindow(this->window);
+		this->window = NULL;
 	}
 }
 
