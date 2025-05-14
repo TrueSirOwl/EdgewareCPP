@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <string>
 #include "Popup.hpp"
+#include <signal.h>
 
 SDL_HitTestResult MyHitTest(SDL_Window* win, const SDL_Point* area, void* data) {
 	return SDL_HITTEST_NORMAL;
@@ -19,7 +20,7 @@ int main() {
 	Settings* Sett = ReadSettings();
 	CreateLogFile();
 
-
+	signal(SIGINT, SIG_DFL);
 	//B:\EdgewarePlusPlus-main\EdgeWare\resource\img
 	//L:/Steam/userdata/86245047/760/remote/244850/screenshots
 	ImageStorage IMGLib = ImageStorage(Sett->ImageFolderPath);
