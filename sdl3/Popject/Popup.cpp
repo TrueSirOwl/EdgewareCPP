@@ -5,27 +5,25 @@
 #include <SDL3/SDL_thread.h>
 
 Popup::Popup(ImageStorage& src, const Settings popsett, SDL_Window* wind, SDL_Renderer* renderer): 
-sett(popsett), ImageLib(src), lifetime(sett.PopupLifespan), death(false), born(false),
+sett(popsett), ImageLib(src), lifetime(sett.PopupLifespan), death(false),
 Current_image(0), imageSurface(NULL), imageTexture(NULL), Gif(NULL), Content(IMAGE), last_image(0), window(wind), PopupRenderer(renderer) {
+	this->start = {};
+	sdl_loader = SDL_CreateThreadRuntime(getImageT, "loader", this, NULL, NULL);
+}
 
-	this->ContentPath = src.getRandomImage();
-	getImage();
-
-	//sdl_loader = SDL_CreateThread(getImageT,"loader",this);
-	// this->loader = std::thread(&Popup::getImage,this);
-	
-
-
+int Popup::getImageT(void* data) {
+	Popup* dota = static_cast<Popup*>(data);
+	dota->getImage();
 }
 
 void Popup::getImage() {
 	this->ContentPath = ImageLib.getRandomImage();
-	std::cout << this->ContentPath << std::endl;
+	//std::cout << this->ContentPath << std::endl;
 
 	if (this->ContentPath.substr(this->ContentPath.find_last_of('.') + 1) == "gif") {
 		this->Gif = IMG_LoadAnimation(this->ContentPath.c_str());
 		this->Content = GIF;
-		std::cout << "loading gif" << std::endl;
+		//std::cout << "loading gif" << std::endl;
 	}
 		this->imageSurface = IMG_Load(this->ContentPath.c_str());
 
@@ -90,30 +88,18 @@ void Popup::place() {
 	this->target.y = WhereH(randomizerEngine);
 }
 
-void Popup::PopUp() {
-	std::cout << "poppin" << std::endl;
-	//SDL_WaitThread(this->sdl_loader,NULL);
-	// try
-	// {
-	// 	if (this->loader.joinable() == true) {
-	// 		this->loader.join();
-	// 	}
-	// }
-	// catch(const std::exception& e)
-	// {
-	// 	std::cerr << e.what() << std::endl;
-	// }
+
+void Popup::Prep() {
+	if (SDL_GetThreadState(this->sdl_loader) == SDL_GetThreadState(this->sdl_loader)) {
+		SDL_WaitThread(this->sdl_loader,NULL);
+	} else {
+		std::cout << "unready\n" << std::flush;
+		return;
+	}
+
 	scale();
 	place();
-	int op = this->sett.PopupOpacity * 255;
-	std::cout << op << std::endl;
-	SDL_SetSurfaceAlphaMod(this->imageSurface, op);
-	
-	// if (this->sett.Overlay == 1) {
-	// 	SetWindowClickThrough();
-	// }
-
-
+	SDL_SetSurfaceAlphaMod(this->imageSurface, this->sett.PopupOpacity * 255);
 	if (this->imageTexture != NULL) {
 		SDL_DestroyTexture(this->imageTexture);
 		this->imageTexture = NULL;
@@ -126,84 +112,48 @@ void Popup::PopUp() {
 		LOG(HERROR, this->sett.LoggingStrenght ,SDL_GetError());
 		SDL_ClearError();
 	}
-	// int renderError = SDL_RenderClear(this->PopupRenderer);
-	// if (renderError != 0) {
-	// 	LOG(HERROR, this->sett.LoggingStrenght ,SDL_GetError());
-	// 	SDL_ClearError();
-	// }
-	SDL_RenderTexture(this->PopupRenderer, this->imageTexture, NULL, &this->target);
-	SDL_RenderPresent(this->PopupRenderer);
-
-	// std::thread run;
-
-	// switch (this->Content) {
-	// case (GIF):
-	// 	renderGif();
-	// 	if (this->sett.PopupLifespan >= 0) {
-	// 		run = std::thread(&Popup::GIFThread, this);
-	// 		run.detach();
-	// 	}
-	// 	else {
-	// 		run = std::thread(&Popup::infinityGIFThread, this);
-	// 		run.detach();
-	// 	}
-	// 	break;
-	// case (IMAGE):
-	// 	if (this->sett.PopupLifespan >= 0) {
-	// 		run = std::thread(&Popup::ImageThread, this);
-	// 		run.detach();
-	// 	}
-	// 	break;
-	// default:
-	// 	break;
-	// }
-	// SDL_ShowWindow(this->window);
+	SDL_SetTextureBlendMode(this->imageTexture, SDL_BLENDMODE_BLEND);
 }
 
-void Popup::GIFThread() {
-	struct timeb start;
-	ftime(&start);
+void Popup::PopUp() {
+	if (start.time == 0 && start.millitm == 0) {
+		ftime(&start);
+	}
+
+	switch (this->Content) {
+	case (GIF):
+		DoGIF();
+		break;
+	case (IMAGE):
+		DoImage();
+		break;
+	default:
+		break;
+	}
+}
+
+void Popup::DoGIF() {
 	struct timeb now;
 	ftime(&now);
-	while (((long long)now.time * 1000 + now.millitm) - ((long long)start.time * 1000 + start.millitm) < this->lifetime) {
-		ftime(&now);
+	if (((long long)now.time * 1000 + now.millitm) - ((long long)start.time * 1000 + start.millitm) > this->lifetime) {
+		if (this->sett.PopupFadeOut == true) {
+			GifFadeout();
+		}
+	} else {
 		renderGif();
 	}
-	if (this->sett.PopupFadeOut == true) {
-		GifFadeout();
-	}
-	this->CheckDeath.lock();
-	this->death = true;
-	this->CheckDeath.unlock();
-
 }
 
-void Popup::infinityGIFThread() {
-	struct timeb start;
-	ftime(&start);
+void Popup::DoImage() {
 	struct timeb now;
 	ftime(&now);
-	while (true) {
-		ftime(&now);
-		renderGif();
+	if (((long long)now.time * 1000 + now.millitm) - ((long long)start.time * 1000 + start.millitm) > this->lifetime) {
+		if (this->sett.PopupFadeOut == true) {
+			FadeOut();
+		}
+	} else {
+		SDL_RenderTexture(this->PopupRenderer, this->imageTexture, NULL, &this->target);
 	}
-	this->CheckDeath.lock();
-	this->death = true;
-	this->CheckDeath.unlock();
-}
-
-void Popup::ImageThread() {
-	renderImage();
-	SDL_DestroySurface(this->imageSurface);
-	this->imageSurface = NULL;
-	std::this_thread::sleep_for(std::chrono::milliseconds(this->lifetime));
-	//std::cout << "age kill" << std::endl;
-	if (this->sett.PopupFadeOut == true) {
-		FadeOut();
-	}
-	this->CheckDeath.lock();
-	this->death = true;
-	this->CheckDeath.unlock();
 }
 
 
@@ -219,33 +169,16 @@ void Popup::renderGif() {
 			this->imageTexture = NULL;
 		}
 		this->imageTexture = SDL_CreateTextureFromSurface(this->PopupRenderer, Gif->frames[this->Current_image++]);
-		SDL_RenderTexture(this->PopupRenderer, this->imageTexture, NULL, NULL);
-		SDL_RenderPresent(this->PopupRenderer);
+		SDL_SetTextureBlendMode(this->imageTexture, SDL_BLENDMODE_BLEND);
+		SDL_SetTextureAlphaMod(this->imageTexture, this->sett.PopupOpacity * 255);
+		SDL_RenderTexture(this->PopupRenderer, this->imageTexture, NULL, &this->target);
 		this->last_image = (long long)now.time * 1000 + now.millitm;
+	} else {
+		SDL_SetTextureAlphaMod(this->imageTexture, this->sett.PopupOpacity * 255);
+		SDL_RenderTexture(this->PopupRenderer, this->imageTexture, NULL, &this->target);
 	}
 }
 
-void Popup::renderImage() {
-	if (this->imageTexture != NULL) {
-		SDL_DestroyTexture(this->imageTexture);
-		this->imageTexture = NULL;
-	}
-	if (imageSurface == NULL) {
-		std::cout << "surface is NULL" << std::endl;
-	}
-	this->imageTexture = SDL_CreateTextureFromSurface(this->PopupRenderer,this->imageSurface);
-	if (this->imageTexture == NULL) {
-		LOG(HERROR, this->sett.LoggingStrenght ,SDL_GetError());
-		SDL_ClearError();
-	}
-	int renderError = SDL_RenderClear(this->PopupRenderer);
-	if (renderError != 0) {
-		LOG(HERROR, this->sett.LoggingStrenght ,SDL_GetError());
-		SDL_ClearError();
-	}
-	SDL_RenderTexture(this->PopupRenderer, this->imageTexture, NULL, NULL);
-	SDL_RenderPresent(this->PopupRenderer);
-}
 
 void Popup::GifFadeout() {
 	double dimin = this->sett.PopupOpacity / this->sett.PopupFadeOutSteps;
@@ -254,17 +187,18 @@ void Popup::GifFadeout() {
 	struct timeb middle1;
 	struct timeb middle;
 
-	ftime(&middle);
 	ftime(&middle1);
 
-	while (this->sett.PopupOpacity > 0) {
+	if (this->sett.PopupOpacity > 0.001) {
 		if ((middle.time * 1000 + middle.millitm) - (middle1.time * 1000 + middle1.millitm) >= step) {
-			ftime(&middle1);
-			SDL_SetWindowOpacity(this->window, this->sett.PopupOpacity);
-			renderGif();
 			this->sett.PopupOpacity -= dimin;
+			renderGif();
+		} else {
+			renderGif();
 		}
-		ftime(&middle);
+		middle = middle1;
+	} else {
+		this->death = true;
 	}
 }
 
@@ -275,26 +209,22 @@ void Popup::FadeOut() {
 	struct timeb middle1;
 	struct timeb middle;
 
-	ftime(&middle);
 	ftime(&middle1);
 
-	while (this->sett.PopupOpacity > 0) {
+	if (this->sett.PopupOpacity > 0.001) {
 		if ((middle.time * 1000 + middle.millitm) - (middle1.time * 1000 + middle1.millitm) >= step) {
-			ftime(&middle1);
-			SDL_SetWindowOpacity(this->window, this->sett.PopupOpacity);
 			this->sett.PopupOpacity -= dimin;
+			SDL_SetTextureAlphaMod(this->imageTexture, this->sett.PopupOpacity * 255);
+			SDL_RenderTexture(this->PopupRenderer, this->imageTexture, NULL, &this->target);
 		}
-		ftime(&middle);
+		middle = middle1;
+	} else {
+		this->death = true;
 	}
 }
 
 Popup::~Popup() {
 	//std::cout << "Popup vaporised" << std::endl;
-	SDL_HideWindow(this->window);
-	if (this->PopupRenderer != NULL) {
-		SDL_DestroyRenderer(this->PopupRenderer);
-		this->PopupRenderer = NULL;
-	}
 	if (this->imageSurface != NULL) {
 		SDL_DestroySurface(this->imageSurface);
 		this->imageSurface = NULL;
@@ -306,10 +236,6 @@ Popup::~Popup() {
 	if (this->Gif != NULL) {
 		IMG_FreeAnimation (this->Gif);
 		this->Gif = NULL;
-	}
-	if (this->window != NULL) {
-		SDL_DestroyWindow(this->window);
-		this->window = NULL;
 	}
 }
 

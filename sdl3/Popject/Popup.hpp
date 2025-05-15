@@ -37,10 +37,6 @@ private:
 
 
 	SDL_Thread* sdl_loader;
-	std::thread loader;
-
-	int imageW;
-	int imageH;
 
 	IMG_Animation *Gif;
 	int Current_image;
@@ -48,24 +44,22 @@ private:
 
 	std::string ContentPath;
 
-	int displayNumber;
-
 	double resizeFactor;
 
 	ContentType Content;
 
-	struct timeb birth;
-	bool born;
+	struct timeb start;
+	//struct timeb middle;
+
 
 	void getImage();
 	void scale();
 	void place();
-
+	static int getImageT(void* data);
 	void renderImage();
 	void renderGif();
-	void ImageThread();
-	void GIFThread();
-	void infinityGIFThread();
+	void DoImage();
+	void DoGIF();
 	void FadeOut();
 	void GifFadeout();
 
@@ -80,6 +74,7 @@ public:
 	Popup(ImageStorage& src, const Settings popsett, SDL_Window* window, SDL_Renderer* renderer);
 
 	void PopUp();
+	void Prep();
 	//Popup(SDL_Surface image ,const Settings popsett);
 
 	~Popup();

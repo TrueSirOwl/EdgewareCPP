@@ -46,6 +46,7 @@ fclean: clean
 	-rm $(POPJECT)
 	-rm $(SETTING)
 	-rm a.out
+	-rm logs/*
 
 re: fclean all
 
