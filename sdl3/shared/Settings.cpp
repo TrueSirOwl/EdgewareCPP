@@ -6,6 +6,10 @@ Settings *ReadSettings() {
 	Settings* SettingsStruct = new Settings;
 	std::string line;
 	std::ifstream setting("shared/Settings.txt");
+	if (setting.is_open() == false) {
+		std::cerr << "Setting file could not be opened!" << std::endl;
+		exit(1);
+	}
 	const std::map<std::string, Setting> lineToEnumMap = {
 		{"ButtonX", Setting::ButtonX},
 		{"ButtonY", Setting::ButtonY},

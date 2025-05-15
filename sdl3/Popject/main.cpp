@@ -24,6 +24,10 @@ int main() {
 	signal(SIGINT, SIG_DFL);
 	//B:\EdgewarePlusPlus-main\EdgeWare\resource\img
 	//L:/Steam/userdata/86245047/760/remote/244850/screenshots
+	if (Sett->ImageFolderPath.empty() == true ) {
+		std::cerr << "No Image path specified!" << std::endl;
+		return(1);
+	}
 	ImageStorage IMGLib = ImageStorage(Sett->ImageFolderPath);
 	LOG(INFO, Sett->LoggingStrenght , "Getting Images from : "+ Sett->ImageFolderPath);
 	
