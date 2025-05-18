@@ -9,15 +9,16 @@
 #include <string>
 #include "Popup.hpp"
 #include <signal.h>
+#include "func.hpp"
 
 SDL_HitTestResult MyHitTest(SDL_Window* win, const SDL_Point* area, void* data) {
 	return SDL_HITTEST_NORMAL;
 }
 
 int main() {
-
+	
 	SDL_Init(SDL_INIT_VIDEO);
-
+	
 	Settings* Sett = ReadSettings();
 	CreateLogFile();
 	
@@ -44,7 +45,7 @@ int main() {
 	disps = SDL_GetDisplays(&dispnum);
 	
 	SDL_Rect dispb[dispnum];
-	
+
 	int c = 0;
 	while(c < dispnum) {
 		SDL_GetDisplayBounds(disps[c],&dispb[c]);
@@ -53,6 +54,10 @@ int main() {
 	}
 	
 	SDL_CreateWindowAndRenderer("title",dispbounds[0].w, dispbounds[0].h, SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_TRANSPARENT | SDL_WINDOW_NOT_FOCUSABLE| SDL_WINDOW_BORDERLESS,&window,&renderer);
+
+	SetWindowClickThrough(window);
+
+	std::cout << "properties: "<< SDL_GetWindowProperties (window) << std::endl;
 
 	SDL_RenderClear(renderer);
 	SDL_RenderPresent(renderer);
@@ -104,3 +109,54 @@ int main() {
 	SDL_DestroyWindow(window);
 	return (0);
 }
+
+
+#if defined(_WIN32)
+#include <windows.h>
+#include <SDL_syswm.h>
+#endif
+
+#if defined(__linux__)
+#include <X11/Xlib.h>
+#include <X11/extensions/Xfixes.h>
+#include <X11/extensions/shape.h>
+#endif
+
+void SetWindowClickThrough(SDL_Window* window) {
+
+#if defined(SDL_PLATFORM_WIN32)
+	HWND hwnd = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
+	if (hwnd) {
+			SetWindowLong(hwnd, GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE);
+	}
+
+#elif defined(SDL_PLATFORM_MACOS)
+	NSWindow *nswindow
+	NSWindow* nswindow = wmInfo.info.cocoa.window;
+	[nswindow setIgnoresMouseEvents : YES] ;
+	[nswindow setCanBecomeKeyWindow : NO] ;
+	[nswindow setCanBecomeMainWindow : NO] ;
+
+#elif defined(SDL_PLATFORM_LINUX)
+	std::cout << "trying to activate clickthough" << std::endl;
+	if (SDL_strcmp(SDL_GetCurrentVideoDriver(), "x11") == 0) {
+		Display *xdisplay = (Display *)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_X11_DISPLAY_POINTER, NULL);
+		Window xwindow = (Window)SDL_GetNumberProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0);
+		if (xdisplay && xwindow) {
+			XWMHints *hints = XAllocWMHints();
+			hints->flags = InputHint;
+			hints->input = False;  // Prevents window from taking focus
+
+			XSetWMHints(xdisplay, xwindow, hints);
+			XFree(hints);
+
+			XRectangle rect;
+			XserverRegion region = XFixesCreateRegion(xdisplay, &rect, 1);
+			XFixesSetWindowShapeRegion(xdisplay, xwindow, ShapeInput, 0, 0, region);
+			XFixesDestroyRegion(xdisplay, region);
+		}
+	}
+#elif
+	LOG(HERROR, this->sett.LoggingStrenght, "SDL_GetWindowWMInfo Error : " + static_cast<std::string>(SDL_GetError()));
+#endif
+	}
