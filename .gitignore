@@ -415,3 +415,4 @@ framework.h
 */*.o
 popject
 settings
+.vscode

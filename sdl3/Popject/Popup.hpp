@@ -49,8 +49,10 @@ private:
 	ContentType Content;
 
 	struct timeb start;
-	//struct timeb middle;
+	struct timeb middle;
 
+	double dimin;
+	double step;
 
 	void getImage();
 	void scale();
@@ -71,7 +73,7 @@ public:
 	std::mutex CheckDeath;
 	bool death;
 
-	Popup(ImageStorage& src, const Settings popsett, SDL_Window* window, SDL_Renderer* renderer);
+	Popup(ImageStorage& src, const Settings popsett, SDL_Rect* displays , SDL_Window* window, SDL_Renderer* renderer);
 
 	void PopUp();
 	void Prep();

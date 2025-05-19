@@ -1,7 +1,7 @@
 CXX = g++
 CXXFLAGS = -g3 -std=c++23 -Ishared
 
-PopSRC = Popject/main.cpp Popject/ImageStorage.cpp Popject/Popup.cpp
+PopSRC = Popject/main.cpp Popject/ImageStorage.cpp Popject/Popup.cpp Popject/Burster.cpp
 SettSRC = SettingsGui/AdvancedSettings.cpp SettingsGui/GeneralSettings.cpp SettingsGui/PopupSettings.cpp SettingsGui/SettGui.cpp SettingsGui/Main.cpp
 SharedSRC = shared/Debug.cpp shared/Settings.cpp
 

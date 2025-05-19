@@ -5,7 +5,7 @@
 Settings *ReadSettings() {
 	Settings* SettingsStruct = new Settings;
 	std::string line;
-	std::ifstream setting("shared/Settings.txt");
+	std::ifstream setting("/home/nico/Documents/dev/EdgewareCPP/sdl3/shared/Settings.txt");
 	if (setting.is_open() == false) {
 		std::cerr << "Setting file could not be opened!" << std::endl;
 		exit(1);

@@ -10,10 +10,8 @@
 #include "Popup.hpp"
 #include <signal.h>
 #include "func.hpp"
-
-SDL_HitTestResult MyHitTest(SDL_Window* win, const SDL_Point* area, void* data) {
-	return SDL_HITTEST_NORMAL;
-}
+#include <queue>
+#include "Burster.hpp"
 
 int main() {
 	
@@ -23,8 +21,6 @@ int main() {
 	CreateLogFile();
 	
 	signal(SIGINT, SIG_DFL);
-	//B:\EdgewarePlusPlus-main\EdgeWare\resource\img
-	//L:/Steam/userdata/86245047/760/remote/244850/screenshots
 	if (Sett->ImageFolderPath.empty() == true ) {
 		std::cerr << "No Image path specified!" << std::endl;
 		return(1);
@@ -34,76 +30,72 @@ int main() {
 	
 	SDL_Window* window;
 	SDL_Renderer* renderer;
-	SDL_Surface* surface;
-	SDL_Texture* texture;
-	
-	bool succ = true;
+
+	//create an array containing available screens
 	int dispnum;
 	SDL_DisplayID* disps;
-	std::vector<SDL_Rect> dispbounds;
 
 	disps = SDL_GetDisplays(&dispnum);
-	
-	SDL_Rect dispb[dispnum];
-
+	SDL_Rect dispbounds[dispnum];
 	int c = 0;
 	while(c < dispnum) {
-		SDL_GetDisplayBounds(disps[c],&dispb[c]);
-		dispbounds.push_back(dispb[c]);
+		SDL_GetDisplayBounds(disps[c],&dispbounds[c]);
 		++c;
 	}
-	
-	SDL_CreateWindowAndRenderer("title",dispbounds[0].w, dispbounds[0].h, SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_TRANSPARENT | SDL_WINDOW_NOT_FOCUSABLE| SDL_WINDOW_BORDERLESS,&window,&renderer);
 
+	//Initialize window and renderer
+	SDL_CreateWindowAndRenderer("title",dispbounds[0].w, dispbounds[0].h, SDL_WINDOW_ALWAYS_ON_TOP | SDL_WINDOW_TRANSPARENT | SDL_WINDOW_NOT_FOCUSABLE| SDL_WINDOW_BORDERLESS, &window,&renderer);
+
+	//set up and display window and renderer
 	SetWindowClickThrough(window);
-
-	std::cout << "properties: "<< SDL_GetWindowProperties (window) << std::endl;
-
 	SDL_RenderClear(renderer);
 	SDL_RenderPresent(renderer);
 
-	std::vector<Popup*> pops;
+	
+	std::queue<Burster*> preps;
 
-	int i = 0;
-	while (i < 10) {
-		pops.push_back(new Popup(IMGLib, *Sett, window, renderer));
-		++i;
-	}
+	std::vector<Burster*> active;
+	std::vector<Burster*>::iterator it;
 
-	std::vector<Popup*>::iterator it = pops.begin();
+	std::queue<Burster*>trash;
 
-	while (it != pops.end()) {
-		(*it)->Prep();
-		++it;
-	}
-	it = pops.begin();
+	//intializes the queue with two bursters to have a backlocg that can load their images in the background
+	preps.push(new Burster(IMGLib, *Sett, dispbounds, window, renderer));
+	preps.push(new Burster(IMGLib, *Sett, dispbounds, window, renderer));
+
+	timeb start;
+	timeb end {};
+	
+	ftime(&start);
 	while (true) {
 		SDL_RenderClear(renderer);
-		while (it != pops.end()) {
-			(*it)->PopUp();
-			if ((*it)->death == true) {
-				delete(*it);
-				pops.erase(it);
+		if (((long long)end.time * 1000 + end.millitm) - ((long long)start.time * 1000 + start.millitm) > Sett->TimeBetweenPopups) {
+			preps.front()->prep();
+			active.push_back(preps.front());
+			preps.pop();
+			preps.push(new Burster(IMGLib, *Sett, dispbounds, window, renderer));
+			ftime(&start);
+		}
+
+		it = active.begin();
+		while (it != active.end()) {
+			(*it)->burst();
+			if ((*it)->checkBurstDone() == true) {
+				delete (*it);
+				active.erase(it);
 			} else {
 				++it;
 			}
 		}
 		SDL_RenderPresent(renderer);
-		if (pops.size() < 10) {
-			pops.push_back(new Popup(IMGLib, *Sett, window, renderer));
-			pops.back()->Prep();
-		}
-		it = pops.begin();
+		ftime(&end);
 	}
 
-	sleep(2);
+	// cleanup
 	
-	it = pops.begin();
-	while (it != pops.end()) {
-		delete(*it);
-		++it;
+	while (preps.empty() == false ) {
+		preps.pop();
 	}
-	pops.clear();
 	delete(Sett);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
@@ -138,7 +130,6 @@ void SetWindowClickThrough(SDL_Window* window) {
 	[nswindow setCanBecomeMainWindow : NO] ;
 
 #elif defined(SDL_PLATFORM_LINUX)
-	std::cout << "trying to activate clickthough" << std::endl;
 	if (SDL_strcmp(SDL_GetCurrentVideoDriver(), "x11") == 0) {
 		Display *xdisplay = (Display *)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_X11_DISPLAY_POINTER, NULL);
 		Window xwindow = (Window)SDL_GetNumberProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0);

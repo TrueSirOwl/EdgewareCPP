@@ -4,11 +4,14 @@
 #include <chrono>
 #include <SDL3/SDL_thread.h>
 
-Popup::Popup(ImageStorage& src, const Settings popsett, SDL_Window* wind, SDL_Renderer* renderer): 
-sett(popsett), ImageLib(src), lifetime(sett.PopupLifespan), death(false),
+Popup::Popup(ImageStorage& src, const Settings popsett, SDL_Rect* displays , SDL_Window* wind, SDL_Renderer* renderer): 
+sett(popsett), ImageLib(src), lifetime(sett.PopupLifespan), death(false), dispbounds(displays),
 Current_image(0), imageSurface(NULL), imageTexture(NULL), Gif(NULL), Content(IMAGE), last_image(0), window(wind), PopupRenderer(renderer) {
 	this->start = {};
-	sdl_loader = SDL_CreateThreadRuntime(getImageT, "loader", this, NULL, NULL);
+	this->middle = {};
+	this->dimin = this->sett.PopupOpacity / this->sett.PopupFadeOutSteps;
+	this->step = this->sett.PopupFadeOutTime / this->sett.PopupFadeOutSteps;
+	sdl_loader = SDL_CreateThread(getImageT, "loader", this);
 }
 
 int Popup::getImageT(void* data) {
@@ -18,15 +21,11 @@ int Popup::getImageT(void* data) {
 
 void Popup::getImage() {
 	this->ContentPath = ImageLib.getRandomImage();
-	//std::cout << this->ContentPath << std::endl;
-
 	if (this->ContentPath.substr(this->ContentPath.find_last_of('.') + 1) == "gif") {
 		this->Gif = IMG_LoadAnimation(this->ContentPath.c_str());
 		this->Content = GIF;
-		//std::cout << "loading gif" << std::endl;
 	}
-		this->imageSurface = IMG_Load(this->ContentPath.c_str());
-
+	this->imageSurface = IMG_Load(this->ContentPath.c_str());
 	if (this->imageSurface == NULL) {
 		LOG(WARNING, this->sett.LoggingStrenght, "Loading " + this->ContentPath + " Failed: " + (std::string)SDL_GetError());
 		exit(1);
@@ -34,28 +33,12 @@ void Popup::getImage() {
 }
 
 void Popup::scale() {
-	
-
-	int dispnum;
-	SDL_DisplayID* disps;
-	
-	disps = SDL_GetDisplays(&dispnum);
-	
-	SDL_Rect dispbounds[dispnum];
-
-	int c = 0;
-	while(c < dispnum) {
-		SDL_GetDisplayBounds(disps[c],&dispbounds[c]);
-		++c;
-	}
-
 	double sourceSize, targetSize;
 
 	std::random_device rd;
 	std::default_random_engine randomizerEngine(rd());
 	std::uniform_real_distribution<double> scaleFactor(this->sett.ImageSizeMin, this->sett.ImageSizeMax);
 	sourceSize = 1 + (std::max<int>(this->imageSurface->w, this->imageSurface->h) / std::min<int>(dispbounds[0].w, dispbounds[0].h));
-	//sourceSize = 1 + (std::max<int>(this->imageSurface->w, this->imageSurface->h) / std::min<int>(1920, 1080));
 
 	targetSize = scaleFactor(randomizerEngine);
 	this->resizeFactor = targetSize / sourceSize;
@@ -64,20 +47,6 @@ void Popup::scale() {
 }
 
 void Popup::place() {
-
-	int dispnum;
-	SDL_DisplayID* disps;
-	
-	disps = SDL_GetDisplays(&dispnum);
-	
-	SDL_Rect dispbounds[dispnum];
-
-	int c = 0;
-	while(c < dispnum) {
-		SDL_GetDisplayBounds(disps[c],&dispbounds[c]);
-		++c;
-	}
-
 	std::random_device rd;
 	std::default_random_engine randomizerEngine(rd());
 	std::uniform_int_distribution<int> WhereH(0, dispbounds[0].h - this->target.h);
@@ -87,7 +56,6 @@ void Popup::place() {
 	this->target.x = WhereW(randomizerEngine);
 	this->target.y = WhereH(randomizerEngine);
 }
-
 
 void Popup::Prep() {
 	if (SDL_GetThreadState(this->sdl_loader) == SDL_GetThreadState(this->sdl_loader)) {
@@ -156,7 +124,6 @@ void Popup::DoImage() {
 	}
 }
 
-
 void Popup::renderGif() {
 	struct timeb now;
 	ftime(&now);
@@ -179,45 +146,38 @@ void Popup::renderGif() {
 	}
 }
 
-
 void Popup::GifFadeout() {
-	double dimin = this->sett.PopupOpacity / this->sett.PopupFadeOutSteps;
-	double step = (this->sett.PopupFadeOutTime / this->sett.PopupFadeOutSteps);
-
 	struct timeb middle1;
-	struct timeb middle;
 
 	ftime(&middle1);
 
 	if (this->sett.PopupOpacity > 0.001) {
-		if ((middle.time * 1000 + middle.millitm) - (middle1.time * 1000 + middle1.millitm) >= step) {
+		if ((middle1.time * 1000 + middle1.millitm) - (middle.time * 1000 + middle.millitm) >= step) {
 			this->sett.PopupOpacity -= dimin;
 			renderGif();
+			middle = middle1;
 		} else {
 			renderGif();
 		}
-		middle = middle1;
 	} else {
 		this->death = true;
 	}
 }
 
 void Popup::FadeOut() {
-	double dimin = this->sett.PopupOpacity / this->sett.PopupFadeOutSteps;
-	double step = (this->sett.PopupFadeOutTime / this->sett.PopupFadeOutSteps);
-
 	struct timeb middle1;
-	struct timeb middle;
 
 	ftime(&middle1);
 
 	if (this->sett.PopupOpacity > 0.001) {
-		if ((middle.time * 1000 + middle.millitm) - (middle1.time * 1000 + middle1.millitm) >= step) {
+		if ((middle1.time * 1000 + middle1.millitm) - (middle.time * 1000 + middle.millitm) >= step) {
 			this->sett.PopupOpacity -= dimin;
 			SDL_SetTextureAlphaMod(this->imageTexture, this->sett.PopupOpacity * 255);
 			SDL_RenderTexture(this->PopupRenderer, this->imageTexture, NULL, &this->target);
+			middle = middle1;
+		} else {
+			SDL_RenderTexture(this->PopupRenderer, this->imageTexture, NULL, &this->target);
 		}
-		middle = middle1;
 	} else {
 		this->death = true;
 	}
