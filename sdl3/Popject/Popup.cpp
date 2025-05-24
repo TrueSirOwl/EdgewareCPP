@@ -57,12 +57,14 @@ void Popup::place() {
 	this->target.y = WhereH(randomizerEngine);
 }
 
-void Popup::Prep() {
+bool Popup::Prep() {
 	if (SDL_GetThreadState(this->sdl_loader) == SDL_THREAD_COMPLETE) {
 		SDL_WaitThread(this->sdl_loader,NULL);
-	} else {
-		std::cout << "unready\n" << std::flush;
-		return;
+		this->sdl_loader = NULL;
+		//std::cout << "ready\n" << std::flush;
+	} else if (this->sdl_loader != NULL) {
+		//std::cout << "unready\n" << std::flush;
+		return (false);
 	}
 	scale();
 	place();
@@ -80,6 +82,7 @@ void Popup::Prep() {
 		SDL_ClearError();
 	}
 	SDL_SetTextureBlendMode(this->imageTexture, SDL_BLENDMODE_BLEND);
+	return (true);
 }
 
 void Popup::PopUp() {

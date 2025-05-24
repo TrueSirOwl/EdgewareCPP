@@ -72,11 +72,12 @@ int main() {
 	while (true) {
 		SDL_RenderClear(renderer);
 		if (((long long)end.time * 1000 + end.millitm) - ((long long)start.time * 1000 + start.millitm) > Sett->TimeBetweenPopups) {
-			preps.front()->prep();
-			active.push_back(preps.front());
-			preps.pop();
-			preps.push(new Burster(IMGLib, *Sett, dispbounds, window, renderer));
-			ftime(&start);
+			if (preps.front()->prep() == true) {
+				active.push_back(preps.front());
+				preps.pop();
+				preps.push(new Burster(IMGLib, *Sett, dispbounds, window, renderer));
+				ftime(&start);
+			}
 		}
 
 		it = active.begin();
