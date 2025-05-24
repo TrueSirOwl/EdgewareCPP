@@ -15,11 +15,11 @@
 #include <queue>
 #include "Burster.hpp"
 
-int main() {
+int main(int argc, char* argv[]) {
 	
 	SDL_Init(SDL_INIT_VIDEO);
 	
-	Settings* Sett = ReadSettings();
+	Settings* Sett = ReadSettings(argv[1]);
 	CreateLogFile();
 	
 	signal(SIGINT, SIG_DFL);
