@@ -7,12 +7,17 @@ Burster::Burster(ImageStorage& src, const Settings sett, SDL_Rect* displays , SD
 	}
 }
 
-void Burster::prep() {
+bool Burster::prep() {
+	bool done = true;
 	std::vector<Popup*>::iterator it = burstBuffer.begin();
 	while (it != burstBuffer.end()) {
-		(*it)->Prep();
+		if ((*it)->Prep() == false) {
+			done = false;
+			//std::cout << "burst not ready yet" << std::endl;
+		}
 		++it;
 	}
+	return (done);
 }
 
 void Burster::burst() {

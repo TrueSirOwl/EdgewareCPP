@@ -76,7 +76,7 @@ public:
 	Popup(ImageStorage& src, const Settings popsett, SDL_Rect* displays , SDL_Window* window, SDL_Renderer* renderer);
 
 	void PopUp();
-	void Prep();
+	bool Prep();
 	//Popup(SDL_Surface image ,const Settings popsett);
 
 	~Popup();

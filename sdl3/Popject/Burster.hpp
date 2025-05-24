@@ -12,7 +12,7 @@ private:
 public:
 	Burster(ImageStorage& src, const Settings sett, SDL_Rect* displays , SDL_Window* wind, SDL_Renderer* renderer);
 	void burst();
-	void prep();
+	bool prep();
 	bool checkBurstDone();
 	~Burster();
 };
