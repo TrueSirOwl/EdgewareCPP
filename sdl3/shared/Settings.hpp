@@ -53,7 +53,7 @@ struct Settings
 	double ImageSizeMax;
 };
 
-Settings*	ReadSettings();
+Settings*	ReadSettings(char* str);
 Setting		OwOWhatSettingDis(const std::string line, const std::map<std::string, Setting> lineToEnumMap);
 void		assign(std::string line, Setting sett, Settings *settingStruct);
 void		setStandardSettingsFile(Settings* sett);

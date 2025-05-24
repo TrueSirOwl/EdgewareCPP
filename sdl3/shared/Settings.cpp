@@ -2,12 +2,12 @@
 #include <fstream>
 #include <iostream>
 
-Settings *ReadSettings() {
+Settings *ReadSettings(char* loc) {
 	Settings* SettingsStruct = new Settings;
 	std::string line;
-	std::ifstream setting("/home/nico/Documents/dev/EdgewareCPP/sdl3/shared/Settings.txt");
+	std::ifstream setting(loc);
 	if (setting.is_open() == false) {
-		std::cerr << "Setting file could not be opened!" << std::endl;
+		std::cerr << "Setting file at: " << loc << " could not be opened!" << std::endl;
 		exit(1);
 	}
 	const std::map<std::string, Setting> lineToEnumMap = {

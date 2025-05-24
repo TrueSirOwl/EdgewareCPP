@@ -58,13 +58,12 @@ void Popup::place() {
 }
 
 void Popup::Prep() {
-	if (SDL_GetThreadState(this->sdl_loader) == SDL_GetThreadState(this->sdl_loader)) {
+	if (SDL_GetThreadState(this->sdl_loader) == SDL_THREAD_COMPLETE) {
 		SDL_WaitThread(this->sdl_loader,NULL);
 	} else {
 		std::cout << "unready\n" << std::flush;
 		return;
 	}
-
 	scale();
 	place();
 	SDL_SetSurfaceAlphaMod(this->imageSurface, this->sett.PopupOpacity * 255);
