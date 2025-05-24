@@ -1,3 +1,5 @@
+#define SDL_MAIN_HANDLED
+
 #include <iostream>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
@@ -105,7 +107,6 @@ int main() {
 
 #if defined(_WIN32)
 #include <windows.h>
-#include <SDL_syswm.h>
 #endif
 
 #if defined(__linux__)
