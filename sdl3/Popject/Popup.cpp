@@ -17,6 +17,7 @@ Current_image(0), imageSurface(NULL), imageTexture(NULL), Gif(NULL), Content(IMA
 int Popup::getImageT(void* data) {
 	Popup* dota = static_cast<Popup*>(data);
 	dota->getImage();
+	return(0);
 }
 
 void Popup::getImage() {
