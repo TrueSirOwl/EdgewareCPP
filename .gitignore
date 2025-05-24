@@ -413,6 +413,5 @@ framework.h
 #-------------------------
 *.o
 */*.o
-popject
 settings
 .vscode
