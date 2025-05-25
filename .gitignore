@@ -14,3 +14,6 @@
 
 #ignore logs
 **/*.hornylog
+
+#ignore settings
+Settings.txt
