@@ -39,6 +39,8 @@ private:
 
 	Settings* SettingsFileContent;
 
+	const char* settingsFileLocation;
+
 	std::vector<Fl_Button*> SelectorPanelButtons;
 	std::vector<const char*> SelectorPanelButtonNames = {
 	{"General"},
@@ -51,7 +53,7 @@ private:
 	static void ShowSettingWindow(Fl_Widget* w, void* name);
 
 public:
-	SettGui();
+	SettGui(const char* loc = "./shared/Settings.txt");
 	~SettGui();
 
 	void update(int CurrentlyOpenPageNum);

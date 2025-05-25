@@ -5,9 +5,9 @@
 #include "PopupSettings.hpp"
 #include "GeneralSettings.hpp"
 
-SettGui::SettGui() : W(std::min(900,Fl::w())), H(std::min(800,Fl::h())) {
+SettGui::SettGui(const char* loc) : W(std::min(900,Fl::w())), H(std::min(800,Fl::h())), settingsFileLocation(loc) {
 	CreateLogFile();
-	this->SettingsFileContent = ReadSettings();
+	this->SettingsFileContent = ReadSettings(settingsFileLocation);
 	this->Gui = new Fl_Window(0,0, W, H, "Settings");
 	this->saveButton = new Fl_Button(0,H-20,W,20,"Save");
 	this->saveButton->callback(saveAndClose, this);
@@ -26,7 +26,7 @@ SettGui::SettGui() : W(std::min(900,Fl::w())), H(std::min(800,Fl::h())) {
 void SettGui::update(int CurrentlyOpenPageNum)
 {
 	delete (this->SettingsFileContent);
-	this->SettingsFileContent = ReadSettings();
+	this->SettingsFileContent = ReadSettings(settingsFileLocation);
 	delete(this->GenSett);
 	this->GenSett = new GeneralSettings(2, 2 + SelectorButtonH, W - 4, H - SelectorButtonH - 24, this->SettingsFileContent);
 	Gui->add(GenSett);

@@ -2,7 +2,7 @@
 #include <fstream>
 #include <iostream>
 
-Settings *ReadSettings(char* loc) {
+Settings *ReadSettings(const char* loc) {
 	Settings* SettingsStruct = new Settings;
 	std::string line;
 	std::ifstream setting(loc);

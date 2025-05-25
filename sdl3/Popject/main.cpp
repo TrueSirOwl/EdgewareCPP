@@ -17,9 +17,15 @@
 
 int main(int argc, char* argv[]) {
 	
-	SDL_Init(SDL_INIT_VIDEO);
+	std::string loc;
+	if (argc < 2) {
+		loc = "./shared/Settings.txt";
+	} else {
+		loc = argv[1];
+	}
 	
-	Settings* Sett = ReadSettings(argv[1]);
+	SDL_Init(SDL_INIT_VIDEO);
+	Settings* Sett = ReadSettings(loc.c_str());
 	CreateLogFile();
 	
 	signal(SIGINT, SIG_DFL);
